@@ -4,6 +4,9 @@ A turn-based restaurant management game for the command line, written in Java. Y
 you give one command to the Waiter and one to the Chef, and the Cashier works on its own. Serve enough happy
 customers within 18 turns to win.
 
+## Project Overview
+[![Architecture diagram of a-sideffect/sc2002_restaurant_rush](https://gitdiagram.com/a-sideffect/sc2002_restaurant_rush/diagram.png)](https://gitdiagram.com/a-sideffect/sc2002_restaurant_rush?utm_source=readme&utm_medium=picture)
+
 This README describes **Stage 1** (the base game). No VIP, Critic, Host, Combo Meal or Happy Hour features
 are included at this stage.
 
