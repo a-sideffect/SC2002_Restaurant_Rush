@@ -1,0 +1,260 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Restaurant Rush Stage 1 Demo Report</title>
+<style>
+:root { --bg:#fbfaf7; --fg:#1f2328; --muted:#5b6370; --card:#ffffff; --line:#e3e0d8; --accent:#b4501e; --ok:#1a7f4b; --code:#f3f1ea; }
+@media (prefers-color-scheme: dark) { :root { --bg:#16181c; --fg:#e8e6e1; --muted:#9aa1ac; --card:#1e2127; --line:#32363e; --accent:#e8895a; --ok:#4cc38a; --code:#111317; } }
+* { box-sizing:border-box; }
+body { margin:0; background:var(--bg); color:var(--fg); font:16px/1.6 system-ui,-apple-system,Segoe UI,sans-serif; }
+main { max-width:880px; margin:0 auto; padding:32px 16px 80px; }
+h1 { font-size:2rem; margin:0 0 4px; } h2 { font-size:1.4rem; margin:44px 0 8px; padding-top:12px; border-top:1px solid var(--line); }
+h3 { font-size:1.05rem; margin:24px 0 4px; }
+.sub { color:var(--muted); margin:0 0 24px; }
+.stats { display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:12px; margin:20px 0; }
+.stat { background:var(--card); border:1px solid var(--line); border-radius:10px; padding:12px 14px; }
+.stat b { display:block; font-size:1.6rem; color:var(--accent); } .stat span { color:var(--muted); font-size:.9rem; }
+pre { background:var(--code); border:1px solid var(--line); border-radius:8px; padding:12px; overflow-x:auto; font:13px/1.45 ui-monospace,Consolas,monospace; }
+table { width:100%; border-collapse:collapse; margin:10px 0; font-size:.95rem; display:block; overflow-x:auto; }
+th,td { text-align:left; padding:6px 10px; border-bottom:1px solid var(--line); vertical-align:top; } th { color:var(--muted); font-weight:600; }
+code { background:var(--code); padding:1px 5px; border-radius:4px; font-size:.9em; }
+.ok { color:var(--ok); font-weight:600; }
+.note { background:var(--card); border-left:4px solid var(--accent); padding:10px 14px; border-radius:0 8px 8px 0; margin:14px 0; }
+nav { display:flex; flex-wrap:wrap; gap:8px 16px; margin:12px 0 0; font-size:.95rem; } nav a { color:var(--accent); text-decoration:none; }
+</style></head><body><main>
+<h1>Restaurant Rush: Stage 1 demo and report</h1>
+<p class="sub">Chunks 1 to 5 of the development plan: setup, domain rules, control and console UI, tests, and documents.</p>
+<nav><a href="#demo">Live demo</a><a href="#setup">1 Setup</a><a href="#domain">2 Domain</a><a href="#control">3 Control</a><a href="#ui">4 UI</a><a href="#tests">5 Testing</a><a href="#findings">6 Findings</a><a href="#left">7 What is left</a></nav>
+
+<div class="stats">
+<div class="stat"><b>691</b><span>automated checks, 0 failing</span></div>
+<div class="stat"><b>400</b><span>random games audited</span></div>
+<div class="stat"><b>39</b><span>game source files</span></div>
+<div class="stat"><b>~1,600</b><span>lines of game code</span></div>
+</div>
+
+<h2 id="demo">Live demo</h2>
+<p>Everything below is real output from the built game, captured when this report was generated.</p>
+
+<h3>The welcome screen</h3><pre>==============================================================
+  RESTAURANT RUSH  -  Stage 1            setting: Base
+==============================================================
+ 18 turns | 2 tables | Staff: Waiter, Chef, Cashier
+ Customers arrive on turns 1, 4, 7, 10, 13, 16.
+ WIN at end of turn 18: &gt;= 4 paid AND revenue &gt;= $45.00
+                        AND avg satisfaction (paid) &gt;= 60
+ Menu: Salad $9.00 (1 unit) | Burger $15.00 (1 unit) | Pasta $18.00 (2 units)
+ Type &#x27;help&#x27; at any prompt for commands.
+==============================================================</pre>
+
+<h3>A start-of-turn board mid-game (turn 10 of the winning run)</h3>
+<p>C4 has just arrived while C3's Pasta is ready. One Waiter, two jobs: the manager has to choose. The board lists the options for every staff member.</p>
+<pre>--------------------------------------------------------------
+ TURN 10 / 18     Revenue $24.00     Avg satisfaction (paid) 84.0
+--------------------------------------------------------------
+ WAITING QUEUE
+   C4  Regular  sat 100  waiting since turn 10
+
+ TABLES
+   T1  C3  Regular  sat  76  ORDERED      Pasta   READY (2/2)  $18.00
+   T2  -- free --
+
+ KITCHEN
+   C3  Pasta   READY (2/2)
+
+ PAID SO FAR
+   C1  $9.00  sat 84   |   C2  $15.00  sat 84
+
+ STAFF TASKS AVAILABLE
+   Waiter  : seat C4 at T2 | serve C3 (Pasta)
+   Chef    : nothing available
+   Cashier : no one ready to pay
+--------------------------------------------------------------
+Waiter&gt; serve 3
+  OK: Waiter serves Pasta to C3.
+Chef&gt; wait
+  OK: Chef waits.
+
+ END OF TURN 10
+   * C4 loses 8 satisfaction (100 -&gt; 92)
+ Served 3 | Unhappy departures 0 | Revenue $24.00 | Avg sat (paid) 84.0 | Turns used 10/18</pre>
+
+<h3>The end of the winning run</h3><pre> END OF TURN 18
+   $ Cashier collects $15.00 from C5 (satisfaction 76), table T1 is free.
+   * C6 loses 8 satisfaction (84 -&gt; 76)
+ Served 5 | Unhappy departures 0 | Revenue $66.00 | Avg sat (paid) 79.2 | Turns used 18/18
+
+==============================================================
+ FINAL RESULT
+   Paid customers     5         (need &gt;= 4)        PASS
+   Revenue            $66.00    (need &gt;= $45.00)   PASS
+   Avg satisfaction   79.2      (need &gt;= 60)       PASS
+   Unhappy departures: 0
+   Not paid by the end:
+     C6  ORDERED  sat 76
+ *** VICTORY ***
+==============================================================</pre>
+
+<h3>A losing run: stopping after turn 10</h3>
+<p>Satisfaction is high but only three customers paid, so the paid-count and revenue targets fail.</p><pre>
+ FINAL RESULT
+   Paid customers     3         (need &gt;= 4)        FAIL
+   Revenue            $42.00    (need &gt;= $45.00)   FAIL
+   Avg satisfaction   81.3      (need &gt;= 60)       PASS
+   Unhappy departures: 0
+   Not paid by the end:
+     C4  WAITING  sat 28
+     C5  WAITING  sat 52
+     C6  WAITING  sat 76
+ *** DEFEAT ***
+==============================================================</pre>
+
+<h3>A losing run: doing nothing</h3>
+<p>C1 and C2 lose patience and walk out. Nobody paid, so the average shows N/A.</p><pre>
+ FINAL RESULT
+   Paid customers     0         (need &gt;= 4)        FAIL
+   Revenue            $0.00     (need &gt;= $45.00)   FAIL
+   Avg satisfaction   N/A       (need &gt;= 60)       FAIL
+   Unhappy departures: 2
+   Not paid by the end:
+     C1  LEFT  sat 0
+     C2  LEFT  sat 0
+     C3  WAITING  sat 4
+     C4  WAITING  sat 28
+     C5  WAITING  sat 52
+     C6  WAITING  sat 76
+ *** DEFEAT ***
+==============================================================</pre>
+
+<h3>Bad input is explained and the turn is not used up</h3>
+<p>Typed into turn 1 of a live session. Notice the Waiter and Chef are asked again after each mistake and the seat happens only once.</p><pre> TURN 1 / 18     Revenue $0.00     Avg satisfaction (paid) N/A
+--------------------------------------------------------------
+ WAITING QUEUE
+   C1  Regular  sat 100  waiting since turn 1
+
+ TABLES
+   T1  -- free --
+   T2  -- free --
+
+ KITCHEN
+   (no orders)
+
+ PAID SO FAR
+   (nobody yet)
+
+ STAFF TASKS AVAILABLE
+   Waiter  : seat C1 at T1
+   Chef    : nothing available
+   Cashier : no one ready to pay
+--------------------------------------------------------------
+Waiter&gt;   X C1 has no order waiting to be served (status: WAITING).
+Waiter&gt;   X C1 is still in the queue. Seat them first.
+Waiter&gt;   X There is no customer C9.
+Waiter&gt;   X There is no table T5.
+Waiter&gt;   X Unknown command &#x27;bogus&#x27;. Waiter can: seat, order, serve, wait. Type &#x27;help&#x27;.
+Waiter&gt;   X &#x27;cook&#x27; is a Chef task. Waiter can: seat, order, serve, wait.
+Waiter&gt;   X &#x27;seat&#x27; needs a customer id, e.g. &#x27;seat 3&#x27; or &#x27;seat 3 1&#x27;.
+Waiter&gt;   OK: Waiter seats C1 at T2.
+Chef&gt;   Commands for the Chef:
+    cook &lt;c&gt;      advance customer c&#x27;s order by one unit, e.g. &#x27;cook 3&#x27;
+    wait (or w)   do nothing this turn
+    status        reprint the board      menu   show the menu
+    help          this list              quit   leave the game
+  Ids can be written &#x27;3&#x27; or &#x27;C3&#x27;; tables &#x27;2&#x27; or &#x27;T2&#x27;. Invalid commands do not use up a turn.
+Chef&gt;   X &#x27;order&#x27; is a Waiter task. Chef can: cook, wait.
+Chef&gt; 
+--------------------------------------------------------------
+ TURN 1 / 18     Revenue $0.00     Avg satisfaction (paid) N/A
+--------------------------------------------------------------
+ WAITING QUEUE
+   (empty)
+
+ TABLES
+   T1  -- free --
+   T2  C1  Regular  sat 100  SEATED       (no order yet)
+
+ KITCHEN
+   (no orders)
+
+ PAID SO FAR
+   (nobody yet)
+
+ STAFF TASKS AVAILABLE
+   Waiter  : order C1
+   Chef    : nothing available
+   Cashier : no one ready to pay
+--------------------------------------------------------------
+Chef&gt;   X C1 has no order to cook yet.
+Chef&gt;   OK: Chef waits.
+
+ END OF TURN 1
+   * C1 loses 8 satisfaction (100 -&gt; 92)
+ Served 0 | Unhappy departures 0 | Revenue $0.00 | Avg sat (paid) N/A | Turns used 1/18
+
+--------------------------------------------------------------</pre>
+
+<h2 id="setup">1. Setup (chunk 1)</h2>
+<p><b>What was built.</b> A plain-JDK project with no dependencies, as the offline rule requires. <code>build</code>, <code>run</code> and <code>test</code> scripts exist for Windows (<code>.bat</code>) and Unix (<code>.sh</code>). They compile from <code>Main</code> with <code>-sourcepath</code>, which handles the spaces in your folder path. The compiler flag <code>--release 17</code> lets teammates on JDK 17 build the code even though it was written on JDK 21. A <code>.gitignore</code> keeps compiled output and IDE files out of the repository.</p>
+<p><b>Test harness.</b> <code>TestRunner</code> has two check methods and a summary, and exits non-zero on failure. It was chosen over JUnit so that a marker needs only a JDK.</p>
+<p><b>Status.</b> <span class="ok">Done.</span> The <code>.sh</code> scripts have not been run on a Mac or Linux machine.</p>
+
+<h2 id="domain">2. Domain layer (chunks 2 and 3)</h2>
+<p><b>What was built.</b> 29 files holding all game rules and state. The package never prints, reads input or imports from the other layers, which is what the brief means by keeping rules out of the UI.</p>
+<table>
+<tr><th>Group</th><th>Classes</th><th>Key points</th></tr>
+<tr><td>Values</td><td><code>Money</code>, <code>MenuItem</code>, <code>Menu</code>, <code>ActionResult</code>, <code>Payment</code></td><td>Money is integer cents. <code>ActionResult</code> carries success plus an explanation, which is how invalid input gets explained.</td></tr>
+<tr><td>Customers</td><td><code>Customer</code> (abstract), <code>RegularCustomer</code>, <code>CustomerStatus</code></td><td>Satisfaction loss, type label and dish choice are overridable. The state methods are package-private and throw if called in the wrong state. Dish rule F1: customer n orders item (n-1) mod 3.</td></tr>
+<tr><td>Orders and tables</td><td><code>Order</code>, <code>OrderStatus</code>, <code>Table</code></td><td>The price is locked when the order is taken. Pasta needs two cooking units; the order becomes READY on the last one.</td></tr>
+<tr><td>Restaurant</td><td><code>Restaurant</code></td><td>Owns tables, queue, customers and scoreboard. Does arrivals, seating, finishing eating, satisfaction loss and walk-outs. Seating logic lives here so a later Host can share it.</td></tr>
+<tr><td>Staff</td><td><code>Staff</code>, <code>Waiter</code>, <code>Chef</code>, <code>Cashier</code></td><td>Each validates and executes its tasks and describes what it could do now. The Cashier picks the oldest eligible payer, one per turn.</td></tr>
+<tr><td>Commands</td><td><code>WaiterTask</code>, <code>ChefTask</code>, <code>SeatTask</code>, <code>TakeOrderTask</code>, <code>ServeTask</code>, <code>CookTask</code>, <code>WaitTask</code></td><td>One object per command, so the controller has no command-specific code.</td></tr>
+<tr><td>Setting and result</td><td><code>GameConfig</code>, <code>ArrivalSchedule</code>, <code>VictoryTargets</code>, <code>Scoreboard</code>, <code>PriceCalculator</code>, <code>GameOutcome</code></td><td>The base setting is data. Victory uses integer maths: an average of exactly 60 wins, 59.75 does not.</td></tr>
+</table>
+<div class="note">Rules worth knowing: a customer served on turn t is ready to pay on t+1 and can pay on t+2 at the earliest. A dish finished this turn cannot be served this turn. A customer who reaches satisfaction 0 leaves, the order is cancelled and the table freed. Customers who are eating or paying lose nothing.</div>
+<p><b>Status.</b> <span class="ok">Done and tested.</span> No Stage 2 or 3 code is present (a word-match search for VIP, critic, host, combo and happy finds nothing).</p>
+
+<h2 id="control">3. Control layer (chunk 4)</h2>
+<p><b>What was built.</b> <code>GameController</code> (about 80 lines) runs the six-step turn loop for all 18 turns. It sequences calls and contains no rules. For the Waiter and then the Chef, it asks for a task, runs it, shows the result, and repeats until it succeeds. That loop is the whole "invalid input does not use up the turn" feature. <code>ManagerInput</code> is the interface the controller depends on, so the same controller is driven by the keyboard, by a script, or by a test. <code>TurnReport</code> carries the automatic-phase results to the display, including the satisfaction values from before the loss was applied.</p>
+<p><b>Status.</b> <span class="ok">Done and tested</span> through full games.</p>
+
+<h2 id="ui">4. Console UI (chunk 4)</h2>
+<table>
+<tr><th>Class</th><th>Job</th></tr>
+<tr><td><code>CommandParser</code></td><td>Text to task. Case-insensitive; <code>C</code> and <code>T</code> prefixes are optional; errors name the problem and suggest a fix (for example "'seat' needs a customer id, e.g. 'seat 3' or 'seat 3 1'").</td></tr>
+<tr><td><code>ConsoleView</code></td><td>All formatting: welcome, board, results, end of turn, final PASS/FAIL checklist. ASCII only, because some Windows consoles garble other characters.</td></tr>
+<tr><td><code>ConsoleInput</code></td><td>Prompts, <code>help</code>, <code>status</code>, <code>menu</code>, <code>quit</code> with confirmation. If input ends, remaining prompts wait so the game still finishes.</td></tr>
+<tr><td><code>ScriptedInput</code></td><td>Replays a script, echoing each command, skipping blanks and <code>#</code> comments, then falls back to the keyboard.</td></tr>
+<tr><td><code>Main</code></td><td>Wires everything. Takes an optional script path; exits with code 2 and a message for a missing file or extra arguments.</td></tr>
+</table>
+<p><b>Status.</b> <span class="ok">Done.</span> Display fields follow the plan (D1 and D2). I have not seen the original assignment brief, so I could not check them against its exact wording.</p>
+
+<h2 id="tests">5. Testing (chunks 3 to 5)</h2>
+<table>
+<tr><th>Layer of testing</th><th>What it proves</th></tr>
+<tr><td>Unit tests by rule</td><td>Money format, dish rule, order lifecycle, seating failures, payment order and timing, satisfaction floor, walk-outs, victory boundaries, task descriptions.</td></tr>
+<tr><td>Whole-flow replays</td><td>The brief's single-Pasta example (satisfaction 92, 84, 76, 76, 76 and pays $18.00 on turn 6) and the plan's hand-traced best line (5 paid, $66.00).</td></tr>
+<tr><td>Scripted runs through the real controller</td><td>Victory, early-stop defeat and idle defeat give exactly the planned numbers. Also: invalid input, end of input, quit, help, full tables, a walk-out with an order pending, and the turn-10 collision.</td></tr>
+<tr><td>Parser table</td><td>About 30 valid and invalid inputs including negative, decimal and huge numbers.</td></tr>
+<tr><td>Random-game audit</td><td>400 seeded games of random, often invalid commands. At every prompt it checks scoreboard totals, table and occupant agreement, queue membership, satisfaction range, locked prices, at most one payment per turn, and that the outcome matches the targets.</td></tr>
+<tr><td>Real-process checks</td><td>Empty stdin, bad script path, extra arguments, Windows line endings, and a script file saved with a byte-order mark.</td></tr>
+</table>
+<p>Latest run: <b>691 passed, 0 failed.</b> Structural checks: no <code>instanceof</code>, no input/output or upward imports in the domain, all source ASCII.</p>
+
+<h2 id="findings">6. Findings</h2>
+<ul>
+<li><b>No rule bugs found.</b> The plan's hand trace and the code agree on every number, and the random audit never broke an invariant.</li>
+<li><b>One real bug found by hand testing, now fixed:</b> a byte-order mark at the start of input made the first command read as unknown. Windows Notepad adds one when saving UTF-8, and PowerShell pipes add one too, so a script saved from Notepad would have shifted every line. Typed and scripted input now ignore it, with tests.</li>
+<li><b>A plan check was too loose:</b> the Definition of Done search for "happy" matches the word "unhappy" in the required "Unhappy departures" display. Use a word-match search instead.</li>
+<li><b>Documents drifted slightly from the code</b> (new parse error, turn report, victory-target helpers). The class diagram in the plan was updated.</li>
+<li><b>Known behaviours, documented:</b> a typo in a script shifts later lines by one; the turn-16 customer cannot pay in time.</li>
+</ul>
+
+<h2 id="left">7. What is left</h2>
+<table>
+<tr><th>Item</th><th>Needs</th></tr>
+<tr><td>Fill roles and deadline in the design log and README</td><td>You and your teammate</td></tr>
+<tr><td>Check the display against the original assignment brief</td><td>The brief text</td></tr>
+<tr><td>Run <code>build.sh</code> and <code>test.sh</code> on a Mac, Linux or Git Bash</td><td>Any such machine</td></tr>
+<tr><td>Commits with a "Why:" line, the annotated <code>stage-1</code> tag, push, and a fresh-clone check</td><td>Your go-ahead. Repo: github.com/a-sideffect/SC2002_Restaurant_Rush</td></tr>
+<tr><td>Optional: CI workflow for process evidence</td><td>A yes or no</td></tr>
+</table>
+</main></body></html>
