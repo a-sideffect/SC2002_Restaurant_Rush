@@ -41,6 +41,11 @@ public abstract class Customer {
         return menu.itemAt((id - 1) % menu.size());
     }
 
+    /** The bill for a dish at the given list price. Regular customers pay full price. */
+    public int adjustBill(int baseCents) {
+        return baseCents;
+    }
+
     // ---- queries ----
 
     public int getId() { return id; }

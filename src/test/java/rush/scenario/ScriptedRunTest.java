@@ -4,6 +4,7 @@ import static rush.TestRunner.check;
 import static rush.TestRunner.checkEquals;
 
 import java.util.List;
+import rush.TestConfigs;
 import rush.domain.CustomerStatus;
 import rush.domain.GameOutcome;
 import rush.domain.Scoreboard;
@@ -37,7 +38,7 @@ public final class ScriptedRunTest {
     }
 
     private static void victory() {
-        GameHarness g = GameHarness.play(GameHarness.readScript("scripts/stage1-victory.txt"), "");
+        GameHarness g = GameHarness.play(TestConfigs.regularOnly(), GameHarness.readScript("scripts/stage1-victory.txt"), "");
         Scoreboard s = g.restaurant.getScoreboard();
         checkEquals(GameOutcome.VICTORY, g.outcome, "victory script outcome");
         checkEquals(5, s.getPaidCount(), "victory paid");
@@ -57,7 +58,7 @@ public final class ScriptedRunTest {
     }
 
     private static void earlyStop() {
-        GameHarness g = GameHarness.play(GameHarness.readScript("scripts/stage1-defeat-early-stop.txt"), "");
+        GameHarness g = GameHarness.play(TestConfigs.regularOnly(), GameHarness.readScript("scripts/stage1-defeat-early-stop.txt"), "");
         Scoreboard s = g.restaurant.getScoreboard();
         checkEquals(GameOutcome.DEFEAT, g.outcome, "early-stop outcome");
         checkEquals(3, s.getPaidCount(), "early-stop paid");
@@ -72,7 +73,7 @@ public final class ScriptedRunTest {
     }
 
     private static void idle() {
-        GameHarness g = GameHarness.play(GameHarness.readScript("scripts/stage1-defeat-idle.txt"), "");
+        GameHarness g = GameHarness.play(TestConfigs.regularOnly(), GameHarness.readScript("scripts/stage1-defeat-idle.txt"), "");
         Scoreboard s = g.restaurant.getScoreboard();
         checkEquals(GameOutcome.DEFEAT, g.outcome, "idle outcome");
         checkEquals(0, s.getPaidCount(), "idle paid");
@@ -188,7 +189,7 @@ public final class ScriptedRunTest {
 
     /** One Pasta delays the next customers (plan 3.1): serving C3 on turn 10 collides with C4's seating. */
     private static void pastaCollision() {
-        GameHarness g = GameHarness.play(GameHarness.readScript("scripts/stage1-victory.txt"), "");
+        GameHarness g = GameHarness.play(TestConfigs.regularOnly(), GameHarness.readScript("scripts/stage1-victory.txt"), "");
         // on turn 10 the board must offer both seat C4 and serve C3 (the collision)
         int t10 = g.output.indexOf(" TURN 10 / 18");
         int t11 = g.output.indexOf(" TURN 11 / 18");

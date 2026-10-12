@@ -36,7 +36,7 @@ public class ConsoleView {
     public void showWelcome(GameConfig config, List<Staff> staff) {
         VictoryTargets t = config.targets();
         out.println(DOUBLE_RULE);
-        out.println(String.format("%-40s setting: %s", "  RESTAURANT RUSH  -  Stage 1", config.name()));
+        out.println(String.format("%-40s setting: %s", "  RESTAURANT RUSH", config.name()));
         out.println(DOUBLE_RULE);
         out.println(" " + config.maxTurns() + " turns | " + config.tableCount() + " tables | Staff: "
                 + staff.stream().map(Staff::getRole).collect(Collectors.joining(", ")));

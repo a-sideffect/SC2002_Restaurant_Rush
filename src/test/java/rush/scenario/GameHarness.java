@@ -45,9 +45,13 @@ public final class GameHarness {
 
     /** Plays with an optional script first, then falls back to {@code stdinText}. */
     public static GameHarness play(List<String> script, String stdinText) {
+        return play(GameConfig.base(), script, stdinText);
+    }
+
+    public static GameHarness play(GameConfig config, List<String> script, String stdinText) {
         ByteArrayOutputStream buf = new ByteArrayOutputStream();
         PrintStream out = new PrintStream(buf, true, StandardCharsets.UTF_8);
-        Restaurant r = new Restaurant(GameConfig.base());
+        Restaurant r = new Restaurant(config);
         Waiter w = new Waiter("Waiter", new PriceCalculator());
         Chef c = new Chef("Chef");
         Cashier k = new Cashier("Cashier");

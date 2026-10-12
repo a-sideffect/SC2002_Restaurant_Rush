@@ -7,8 +7,8 @@ customers within 18 turns to win.
 ## Project Overview
 [![Architecture diagram of a-sideffect/sc2002_restaurant_rush](https://gitdiagram.com/a-sideffect/sc2002_restaurant_rush/diagram.png)](https://gitdiagram.com/a-sideffect/sc2002_restaurant_rush?utm_source=readme&utm_medium=picture)
 
-This README describes **Stage 1** (the base game). No VIP, Critic, Host, Combo Meal or Happy Hour features
-are included at this stage.
+This README describes **Stage 2**: the Stage 1 base game plus VIP and Critic customers. No Host, Combo Meal or
+Happy Hour features are included at this stage.
 
 ## Requirements
 
@@ -21,7 +21,7 @@ are included at this stage.
 |------|---------|---------------|
 | Build | `build.bat` | `sh build.sh` |
 | Play | `run.bat` | `sh run.sh` |
-| Replay a script | `run.bat scripts\stage1-victory.txt` | `sh run.sh scripts/stage1-victory.txt` |
+| Replay a script | `run.bat scripts\stage2-victory.txt` | `sh run.sh scripts/stage2-victory.txt` |
 | Run all tests | `test.bat` | `sh test.sh` |
 
 Build first; `run` and `test` use the compiled `out/` and `out-test/` folders.
@@ -30,6 +30,14 @@ Build first; `run` and `test` use the compiled `out/` and `out-test/` folders.
 
 - 18 turns, 2 tables, one Waiter, one Chef, one Cashier.
 - Customers arrive on turns 1, 4, 7, 10, 13 and 16 with satisfaction 100.
+- Customer types: C2 (turn 4) is a **VIP** and C4 (turn 10) is a **Critic**; the rest are Regular.
+
+  | Type | Satisfaction lost per turn while waiting | Bill | Dish |
+  |------|------------------------------------------|------|------|
+  | Regular | 8 | full price | rule F1 |
+  | VIP | 5 | 10% off | rule F1 |
+  | Critic | 12 | full price | always the highest-priced dish |
+
 - Menu: Salad $9.00 (1 unit), Burger $15.00 (1 unit), Pasta $18.00 (2 units).
 - **Win** at the end of turn 18: at least 4 customers paid, revenue of at least $45.00, and an average satisfaction
   of paid customers of at least 60. The game always plays all 18 turns.
@@ -40,7 +48,7 @@ Build first; `run` and `test` use the compiled `out/` and `out-test/` folders.
 2. You command the Waiter (one task), then the Chef (one preparation unit).
 3. The Cashier collects from at most one customer who has been ready to pay since an earlier turn (oldest first).
 4. Customers served on an earlier turn finish eating and become ready to pay.
-5. Customers still waiting, seated or ordered lose 8 satisfaction (never below 0). At 0 they leave and their order is cancelled.
+5. Customers still waiting, seated or ordered lose satisfaction by their type (never below 0). At 0 they leave and their order is cancelled.
 6. After the last turn, the result is shown.
 
 ## Controls
@@ -62,17 +70,19 @@ An invalid command prints why and asks again. It never uses up the staff member'
 
 Customer Cn orders menu item number `(n - 1) mod menuSize`. On the base menu that gives
 C1 Salad, C2 Burger, C3 Pasta, C4 Salad, C5 Burger, C6 Pasta. The rule is deterministic so runs are reproducible.
-You see the dish when you take the order. It lives in `Customer.chooseDish(Menu)`, so a customer type can override it.
+You see the dish when you take the order. It lives in `Customer.chooseDish(Menu)`, so a customer type can override it:
+the Critic does, so C4 orders Pasta instead of Salad.
 
 ## Reproducible runs
 
 | Script | Result |
 |--------|--------|
-| `scripts/stage1-victory.txt` | VICTORY: 5 paid, $66.00, average 79.2 |
-| `scripts/stage1-defeat-early-stop.txt` | DEFEAT: 3 paid, $42.00, average 81.3 |
-| `scripts/stage1-defeat-idle.txt` | DEFEAT: 0 paid, 2 unhappy departures |
+| `scripts/stage2-victory.txt` | VICTORY: 5 paid, $73.50, average 75.6 |
+| `scripts/stage2-defeat-early-stop.txt` | DEFEAT: 3 paid, $40.50, average 83.3, 1 departure |
+| `scripts/stage2-defeat-idle.txt` | DEFEAT: 0 paid, 2 unhappy departures |
 
-Details and the turn-by-turn table are in `docs/test-notes/stage-1.md`.
+The `stage1-*` scripts reproduce the Stage 1 results at git tag `stage-1` (all customers Regular).
+Details and turn-by-turn tables are in `docs/test-notes/stage-2.md` and `docs/test-notes/stage-1.md`.
 The turn-16 customer can never pay within 18 turns. That is intended.
 
 ## Project layout

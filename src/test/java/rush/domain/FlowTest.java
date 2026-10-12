@@ -4,6 +4,7 @@ import static rush.TestRunner.check;
 import static rush.TestRunner.checkEquals;
 
 import java.util.ArrayList;
+import rush.TestConfigs;
 import java.util.List;
 import java.util.Optional;
 
@@ -74,7 +75,7 @@ public final class FlowTest {
 
     /** R-A5: the turn-16 arrival cannot pay within 18 turns, even with perfect play. */
     private static void lateArrivalCannotPay() {
-        Restaurant r = new Restaurant(GameConfig.base());
+        Restaurant r = new Restaurant(TestConfigs.regularOnly());
         Waiter w = new Waiter("W", new PriceCalculator());
         Chef chef = new Chef("C");
         Cashier cashier = new Cashier("K");
@@ -96,7 +97,7 @@ public final class FlowTest {
 
     /** The hand-traced optimal line from the plan (section 3.3): 5 paid, $66.00, avg 79.2. */
     private static void fullVictoryLine() {
-        Restaurant r = new Restaurant(GameConfig.base());
+        Restaurant r = new Restaurant(TestConfigs.regularOnly());
         Waiter w = new Waiter("W", new PriceCalculator());
         Chef chef = new Chef("C");
         Cashier cashier = new Cashier("K");

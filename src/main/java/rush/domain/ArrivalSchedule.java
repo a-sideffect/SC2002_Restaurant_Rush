@@ -20,13 +20,16 @@ public class ArrivalSchedule {
         this.arrivals = List.copyOf(arrivals);
     }
 
-    /** Base setting: one Regular customer on turns 1, 4, 7, 10, 13 and 16. */
+    /**
+     * Base setting: one customer on turns 1, 4, 7, 10, 13 and 16. The turn-4 arrival is a VIP and the
+     * turn-10 arrival is a Critic; everyone else is Regular.
+     */
     public static ArrivalSchedule base() {
         return new ArrivalSchedule(List.of(
                 new ScheduledArrival(1, RegularCustomer::new),
-                new ScheduledArrival(4, RegularCustomer::new),
+                new ScheduledArrival(4, VIPCustomer::new),
                 new ScheduledArrival(7, RegularCustomer::new),
-                new ScheduledArrival(10, RegularCustomer::new),
+                new ScheduledArrival(10, CriticCustomer::new),
                 new ScheduledArrival(13, RegularCustomer::new),
                 new ScheduledArrival(16, RegularCustomer::new)));
     }

@@ -1,0 +1,57 @@
+# Restaurant Rush - Stage 2 - Victory run (base setting: C2 is a VIP, C4 is a Critic)
+# Two lines per turn: Waiter, then Chef.
+# Turn 1
+seat 1
+wait
+# Turn 2
+order 1
+cook 1
+# Turn 3
+serve 1
+wait
+# Turn 4
+seat 2
+wait
+# Turn 5
+order 2
+cook 2
+# Turn 6
+serve 2
+wait
+# Turn 7
+seat 3
+wait
+# Turn 8
+order 3
+cook 3
+# Turn 9
+wait
+cook 3
+# Turn 10
+serve 3
+wait
+# Turn 11
+seat 4
+wait
+# Turn 12
+order 4
+cook 4
+# Turn 13
+seat 5
+cook 4
+# Turn 14
+serve 4
+wait
+# Turn 15
+order 5
+cook 5
+# Turn 16
+serve 5
+wait
+# Turn 17
+seat 6
+wait
+# Turn 18
+order 6
+cook 6
+

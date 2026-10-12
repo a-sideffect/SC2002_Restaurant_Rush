@@ -2,7 +2,7 @@ package rush.domain;
 
 import java.util.Locale;
 
-/** Formatting for money, which is always stored as integer cents. */
+/** Formatting and percentage maths for money, which is always stored as integer cents. */
 public final class Money {
     private Money() { }
 
@@ -11,5 +11,15 @@ public final class Money {
         String sign = cents < 0 ? "-" : "";
         int abs = Math.abs(cents);
         return String.format(Locale.ROOT, "%s$%d.%02d", sign, abs / 100, abs % 100);
+    }
+
+    /** {@code pct} percent of {@code cents}, rounded half up (e.g. 10% of 1350 = 135, 10% of 905 = 91). */
+    public static int percentOf(int cents, int pct) {
+        return (cents * pct + 50) / 100;
+    }
+
+    /** {@code cents} with {@code pct} percent taken off, rounded half up on the discount. */
+    public static int discounted(int cents, int pct) {
+        return cents - percentOf(cents, pct);
     }
 }

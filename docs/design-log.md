@@ -91,6 +91,19 @@ Decision: input strips a leading BOM.
 Why: found during testing. Windows Notepad and PowerShell pipes add one, which made the first command read as
 unknown and shifted a whole script. A test now covers it.
 
+## Stage 2: VIP and Critic as subclasses, bill hook on Customer
+Decision: `VIPCustomer` and `CriticCustomer` extend `Customer` and override loss rate, label, `adjustBill` (VIP) and
+`chooseDish` (Critic). `PriceCalculator.quote` calls `customer.adjustBill`. The base run changes by two entries in
+`ArrivalSchedule.base()`.
+Alternatives: a type field with `if` chains in the controller and price code.
+Why: the controller, staff and view needed no change (checked by diff), which is the point of the Stage 1 design.
+Principles: OCP, LSP, polymorphism.
+
+## Stage 2: Stage 1 scripts kept as Regular-only regression tests
+Decision: the base setting now contains a VIP and a Critic, so the Stage 1 hand-traced numbers no longer hold for it.
+They are kept as tests under a Regular-only test setting (`TestConfigs.regularOnly()`), and the files stay in `scripts/`.
+Why: the game is data-driven, so an older setting is one config, not a code branch.
+
 ## Rejected: one GameEngine class with a command switch
 Why rejected: every later feature would mean editing it (OCP violation), and customer behaviour would need type
 checks that the brief bans.

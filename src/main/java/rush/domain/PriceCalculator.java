@@ -7,6 +7,6 @@ package rush.domain;
 public class PriceCalculator {
     /** Price in cents that will be locked into the order. */
     public int quote(Customer customer, MenuItem item) {
-        return item.getPriceCents();
+        return customer.adjustBill(item.getPriceCents());
     }
 }

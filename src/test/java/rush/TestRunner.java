@@ -2,6 +2,7 @@ package rush;
 
 import java.util.Objects;
 import rush.domain.CustomerTest;
+import rush.domain.CustomerTypesTest;
 import rush.domain.FlowTest;
 import rush.domain.MoneyTest;
 import rush.domain.OrderTest;
@@ -10,6 +11,7 @@ import rush.domain.StaffTest;
 import rush.domain.VictoryTargetsTest;
 import rush.scenario.FuzzTest;
 import rush.scenario.ScriptedRunTest;
+import rush.scenario.Stage2RunTest;
 import rush.ui.CommandParserTest;
 
 /** Tiny dependency-free test harness. Exits non-zero if any check fails. */
@@ -40,12 +42,14 @@ public final class TestRunner {
         StaffTest.run();
         VictoryTargetsTest.run();
         FlowTest.run();
+        CustomerTypesTest.run();
         try {
             CommandParserTest.run();
         } catch (Exception e) {
             check(false, "CommandParserTest threw " + e);
         }
         ScriptedRunTest.run();
+        Stage2RunTest.run();
         FuzzTest.run();
         System.out.printf("%d passed, %d failed%n", passed, failed);
         if (failed > 0) {

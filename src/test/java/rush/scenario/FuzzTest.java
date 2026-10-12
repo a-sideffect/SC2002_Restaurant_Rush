@@ -183,7 +183,7 @@ public final class FuzzTest {
                     default:
                         break;
                 }
-                if (o != null && o.getLockedPriceCents() != o.getItem().getPriceCents()) {
+                if (o != null && o.getLockedPriceCents() != cu.adjustBill(o.getItem().getPriceCents())) {
                     bad(who + " price changed");
                 }
                 if (o != null && o.getUnitsDone() > o.getItem().getPrepUnits()) {
