@@ -15,6 +15,7 @@ import rush.domain.Cashier;
 import rush.domain.Chef;
 import rush.domain.GameConfig;
 import rush.domain.GameOutcome;
+import rush.domain.Host;
 import rush.domain.PriceCalculator;
 import rush.domain.Restaurant;
 import rush.domain.Staff;
@@ -53,15 +54,16 @@ public final class GameHarness {
         PrintStream out = new PrintStream(buf, true, StandardCharsets.UTF_8);
         Restaurant r = new Restaurant(config);
         Waiter w = new Waiter("Waiter", new PriceCalculator());
+        Host host = new Host("Host");
         Chef c = new Chef("Chef");
         Cashier k = new Cashier("Cashier");
-        List<Staff> staff = List.of(w, c, k);
+        List<Staff> staff = List.of(w, host, c, k);
         ConsoleView view = new ConsoleView(out);
         BufferedReader in = new BufferedReader(new StringReader(stdinText));
         ManagerInput input = script == null
                 ? new ConsoleInput(in, out, view, r, staff)
                 : new ScriptedInput(script, in, out, view, r, staff);
-        GameOutcome outcome = new GameController(r, w, c, k, input, view).run();
+        GameOutcome outcome = new GameController(r, w, host, c, k, input, view).run();
         return new GameHarness(r, buf.toString(StandardCharsets.UTF_8), outcome);
     }
 

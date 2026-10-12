@@ -1,7 +1,7 @@
 package rush.domain;
 
-/** Do nothing this turn. Valid for both the Waiter and the Chef, and always succeeds. */
-public final class WaitTask implements WaiterTask, ChefTask {
+/** Do nothing this turn. Valid for the Waiter, Host and Chef, and always succeeds. */
+public final class WaitTask implements WaiterTask, HostTask, ChefTask {
     public static final WaitTask INSTANCE = new WaitTask();
 
     private WaitTask() { }
@@ -9,6 +9,11 @@ public final class WaitTask implements WaiterTask, ChefTask {
     @Override
     public ActionResult execute(Waiter w, Restaurant r, int turn) {
         return ActionResult.ok("Waiter waits.");
+    }
+
+    @Override
+    public ActionResult execute(Host h, Restaurant r, int turn) {
+        return ActionResult.ok("Host waits.");
     }
 
     @Override

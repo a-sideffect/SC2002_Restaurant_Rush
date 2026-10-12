@@ -18,6 +18,7 @@ public class Restaurant {
     private final List<Customer> queue = new ArrayList<>();
     private final List<Customer> customers = new ArrayList<>();
     private final Scoreboard scoreboard = new Scoreboard();
+    private final HappyHour happyHour = new HappyHour();
 
     public Restaurant(GameConfig config) {
         this.config = config;
@@ -31,6 +32,7 @@ public class Restaurant {
     public GameConfig getConfig() { return config; }
     public Menu getMenu() { return config.menu(); }
     public Scoreboard getScoreboard() { return scoreboard; }
+    public HappyHour getHappyHour() { return happyHour; }
     public List<Table> getTables() { return Collections.unmodifiableList(tables); }
     public List<Customer> getQueue() { return Collections.unmodifiableList(queue); }
     public List<Customer> getAllCustomers() { return Collections.unmodifiableList(customers); }
@@ -119,8 +121,38 @@ public class Restaurant {
         queue.remove(c);
         target.occupy(c);
         c.seatAt(target);
-        return ActionResult.ok("Waiter seats " + c.getLabel() + " at T" + target.getNumber() + ".");
+        return ActionResult.ok("Seated " + c.getLabel() + " at T" + target.getNumber() + ".");
     }
+
+    /** Start of turn: the manager chooses to start the once-per-game Happy Hour. */
+    public ActionResult activateHappyHour() {
+        if (!happyHour.activate()) {
+            return ActionResult.fail("Happy Hour has already been used this game.");
+        }
+        return ActionResult.ok("Happy Hour starts and lasts " + HappyHour.DURATION_TURNS + " turns.");
+    }
+
+    /**
+     * Start of turn: while Happy Hour is active, every customer awaiting service regains
+     * {@link HappyHour#RECOVERY_POINTS} satisfaction (capped at 100). Returns the changes.
+     */
+    public List<SatisfactionChange> applyHappyHourRecovery() {
+        List<SatisfactionChange> changes = new ArrayList<>();
+        if (!happyHour.isActive()) {
+            return changes;
+        }
+        for (Customer c : customers) {
+            if (c.getStatus().isAwaitingService()) {
+                int before = c.getSatisfaction();
+                c.gainSatisfaction(HappyHour.RECOVERY_POINTS);
+                changes.add(new SatisfactionChange(c, before, c.getSatisfaction()));
+            }
+        }
+        return changes;
+    }
+
+    /** End of turn: counts one turn off an active Happy Hour. */
+    public void endHappyHourTurn() { happyHour.endTurn(); }
 
     /** Step 4b (R4.4): customers served on an earlier turn finish eating. */
     public List<Customer> finishEating(int turn) {

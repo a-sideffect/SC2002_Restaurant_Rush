@@ -5,6 +5,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import rush.domain.ChefTask;
 import rush.domain.CookTask;
+import rush.domain.HostTask;
 import rush.domain.SeatTask;
 import rush.domain.ServeTask;
 import rush.domain.TakeOrderTask;
@@ -18,6 +19,7 @@ import rush.domain.WaiterTask;
 public class CommandParser {
     private static final String WAITER_CMDS = "seat, order, serve, wait";
     private static final String CHEF_CMDS = "cook, wait";
+    private static final String HOST_CMDS = "seat, wait";
     private static final Pattern CUSTOMER_ID = Pattern.compile("c?(\\d{1,6})");
     private static final Pattern TABLE_ID = Pattern.compile("t?(\\d{1,6})");
 
@@ -26,16 +28,7 @@ public class CommandParser {
         String cmd = tok[0];
         switch (cmd) {
             case "seat":
-                if (tok.length == 1) {
-                    throw new ParseError("'seat' needs a customer id, e.g. 'seat 3' or 'seat 3 1'.");
-                }
-                if (tok.length > 3) {
-                    throw new ParseError("'seat' takes a customer and an optional table, e.g. 'seat 3 1'.");
-                }
-                int customer = parseId(CUSTOMER_ID, tok[1], "customer", "'seat 3' or 'seat 3 1'");
-                Integer table = tok.length == 3
-                        ? Integer.valueOf(parseId(TABLE_ID, tok[2], "table", "'seat 3 1'")) : null;
-                return new SeatTask(customer, table);
+                return parseSeat(tok);
             case "order":
                 return new TakeOrderTask(singleCustomer(tok, "order"));
             case "serve":
@@ -49,6 +42,37 @@ public class CommandParser {
             default:
                 throw unknown(tok[0], "Waiter", WAITER_CMDS);
         }
+    }
+
+    public HostTask parseHost(String line) throws ParseError {
+        String[] tok = tokenize(line, "Host", HOST_CMDS);
+        switch (tok[0]) {
+            case "seat":
+                return parseSeat(tok);
+            case "wait":
+            case "w":
+                noArgs(tok, "wait");
+                return WaitTask.INSTANCE;
+            case "order":
+            case "serve":
+                throw new ParseError("'" + tok[0] + "' is a Waiter task. Host can: " + HOST_CMDS + ".");
+            case "cook":
+                throw new ParseError("'cook' is a Chef task. Host can: " + HOST_CMDS + ".");
+            default:
+                throw unknown(tok[0], "Host", HOST_CMDS);
+        }
+    }
+
+    /** Answer to the Happy Hour question: yes or no. */
+    public boolean parseYesNo(String line) throws ParseError {
+        String answer = line == null ? "" : line.trim().toLowerCase(Locale.ROOT);
+        if (answer.equals("yes") || answer.equals("y")) {
+            return true;
+        }
+        if (answer.equals("no") || answer.equals("n")) {
+            return false;
+        }
+        throw new ParseError("Please answer yes or no. Happy Hour can only be started once per game.");
     }
 
     public ChefTask parseChef(String line) throws ParseError {
@@ -67,6 +91,19 @@ public class CommandParser {
             default:
                 throw unknown(tok[0], "Chef", CHEF_CMDS);
         }
+    }
+
+    private static SeatTask parseSeat(String[] tok) throws ParseError {
+        if (tok.length == 1) {
+            throw new ParseError("'seat' needs a customer id, e.g. 'seat 3' or 'seat 3 1'.");
+        }
+        if (tok.length > 3) {
+            throw new ParseError("'seat' takes a customer and an optional table, e.g. 'seat 3 1'.");
+        }
+        int customer = parseId(CUSTOMER_ID, tok[1], "customer", "'seat 3' or 'seat 3 1'");
+        Integer table = tok.length == 3
+                ? Integer.valueOf(parseId(TABLE_ID, tok[2], "table", "'seat 3 1'")) : null;
+        return new SeatTask(customer, table);
     }
 
     private static String[] tokenize(String line, String role, String cmds) throws ParseError {

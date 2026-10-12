@@ -13,12 +13,14 @@ import rush.domain.Customer;
 import rush.domain.CustomerStatus;
 import rush.domain.GameConfig;
 import rush.domain.GameOutcome;
+import rush.domain.HappyHour;
 import rush.domain.Menu;
 import rush.domain.MenuItem;
 import rush.domain.Money;
 import rush.domain.Order;
 import rush.domain.Payment;
 import rush.domain.Restaurant;
+import rush.domain.SatisfactionChange;
 import rush.domain.Scoreboard;
 import rush.domain.Staff;
 import rush.domain.Table;
@@ -46,7 +48,12 @@ public class ConsoleView {
         out.println(" WIN at end of turn " + config.maxTurns() + ": >= " + t.minPaid()
                 + " paid AND revenue >= " + Money.format(t.minRevenueCents()));
         out.println("                        AND avg satisfaction (paid) >= " + t.minAvgSatisfaction());
-        out.println(" Menu: " + menuLine(config.menu()));
+        out.println(" Menu:");
+        printMenuItems(config.menu(), "   ");
+        out.println(" Happy Hour: once per game, lasts " + HappyHour.DURATION_TURNS + " turns: "
+                + HappyHour.DISCOUNT_PERCENT + "% off new orders,");
+        out.println("             +" + HappyHour.RECOVERY_POINTS
+                + " satisfaction for waiting customers at the start of each active turn.");
         out.println(" Type 'help' at any prompt for commands.");
         out.println(DOUBLE_RULE);
     }
@@ -66,6 +73,16 @@ public class ConsoleView {
                 + "     Revenue " + Money.format(s.getRevenueCents())
                 + "     Avg satisfaction (paid) " + average(s.averageSatisfaction()));
         out.println(RULE);
+        HappyHour hh = r.getHappyHour();
+        if (hh.isActive()) {
+            out.println(" HAPPY HOUR ACTIVE: " + hh.getRemainingTurns() + " turn(s) left, "
+                    + HappyHour.DISCOUNT_PERCENT + "% off new orders");
+        } else if (hh.isAvailable()) {
+            out.println(" Happy Hour: still available (once per game)");
+        }
+        if (hh.isActive() || hh.isAvailable()) {
+            out.println();
+        }
 
         out.println(" WAITING QUEUE");
         if (r.getQueue().isEmpty()) {
@@ -118,6 +135,18 @@ public class ConsoleView {
                     tasks.isEmpty() ? "nothing available" : String.join(" | ", tasks)));
         }
         out.println(RULE);
+    }
+
+    /** Happy Hour's start-of-turn effect: who regained satisfaction, and how long it still lasts. */
+    public void showHappyHourRecovery(List<SatisfactionChange> changes, int turnsLeft) {
+        out.println(" ** HAPPY HOUR ** " + turnsLeft + " turn(s) left. +" + HappyHour.RECOVERY_POINTS
+                + " satisfaction for customers awaiting service:");
+        if (changes.isEmpty()) {
+            out.println("      (nobody is waiting)");
+        }
+        for (SatisfactionChange c : changes) {
+            out.println("      " + c.customer().getLabel() + " " + c.before() + " -> " + c.after());
+        }
     }
 
     public void showResult(ActionResult res) {
@@ -183,31 +212,46 @@ public class ConsoleView {
 
     public void showHelp(String role) {
         out.println("  Commands for the " + role + ":");
-        if (role.equals("Chef")) {
-            out.println("    cook <c>      advance customer c's order by one unit, e.g. 'cook 3'");
-        } else {
-            out.println("    seat <c> [t]  seat customer c at table t (default: lowest free), e.g. 'seat 4 2'");
-            out.println("    order <c>     take c's order (the customer chooses the dish)");
-            out.println("    serve <c>     serve c's READY order");
+        switch (role) {
+            case "Chef":
+                out.println("    cook <c>      advance customer c's order by one unit, e.g. 'cook 3'");
+                break;
+            case "Host":
+                out.println("    seat <c> [t]  seat customer c at table t (default: lowest free), e.g. 'seat 4 2'");
+                break;
+            case "Happy Hour":
+                out.println("    yes (or y)    start Happy Hour now (only once per game)");
+                out.println("    no (or n)     not yet; you will be asked again next turn");
+                break;
+            default:
+                out.println("    seat <c> [t]  seat customer c at table t (default: lowest free), e.g. 'seat 4 2'");
+                out.println("    order <c>     take c's order (the customer chooses the dish)");
+                out.println("    serve <c>     serve c's READY order");
+                break;
         }
-        out.println("    wait (or w)   do nothing this turn");
+        if (!role.equals("Happy Hour")) {
+            out.println("    wait (or w)   do nothing this turn");
+        }
         out.println("    status        reprint the board      menu   show the menu");
         out.println("    help          this list              quit   leave the game");
         out.println("  Ids can be written '3' or 'C3'; tables '2' or 'T2'. Invalid commands do not use up a turn.");
     }
 
-    public void showMenu(Menu menu) { out.println("  Menu: " + menuLine(menu)); }
+    public void showMenu(Menu menu) {
+        out.println("  Menu:");
+        printMenuItems(menu, "    ");
+    }
 
     private static String targetRow(String label, String value, String need, boolean met) {
         return String.format("   %-18s %-9s %-18s %s", label, value, "(need >= " + need + ")",
                 met ? "PASS" : "FAIL");
     }
 
-    private static String menuLine(Menu menu) {
-        return menu.getItems().stream()
-                .map(i -> i.getName() + " " + Money.format(i.getPriceCents()) + " ("
-                        + i.getPrepUnits() + (i.getPrepUnits() == 1 ? " unit)" : " units)"))
-                .collect(Collectors.joining(" | "));
+    private void printMenuItems(Menu menu, String indent) {
+        for (MenuItem i : menu.getItems()) {
+            out.println(indent + i.getDescription() + "  " + Money.format(i.getPriceCents()) + "  ("
+                    + i.getPrepUnits() + (i.getPrepUnits() == 1 ? " unit)" : " units)"));
+        }
     }
 
     private static String orderText(Customer c) {

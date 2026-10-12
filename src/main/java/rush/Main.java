@@ -12,6 +12,7 @@ import rush.control.ManagerInput;
 import rush.domain.Cashier;
 import rush.domain.Chef;
 import rush.domain.GameConfig;
+import rush.domain.Host;
 import rush.domain.PriceCalculator;
 import rush.domain.Restaurant;
 import rush.domain.Staff;
@@ -45,9 +46,10 @@ public final class Main {
 
         Restaurant restaurant = new Restaurant(GameConfig.base());
         Waiter waiter = new Waiter("Waiter", new PriceCalculator());
+        Host host = new Host("Host");
         Chef chef = new Chef("Chef");
         Cashier cashier = new Cashier("Cashier");
-        List<Staff> staff = List.of(waiter, chef, cashier);
+        List<Staff> staff = List.of(waiter, host, chef, cashier);
         ConsoleView view = new ConsoleView(System.out);
         BufferedReader stdin = new BufferedReader(new InputStreamReader(System.in, StandardCharsets.UTF_8));
 
@@ -56,7 +58,7 @@ public final class Main {
                 : new ScriptedInput(script, stdin, System.out, view, restaurant, staff);
 
         try {
-            new GameController(restaurant, waiter, chef, cashier, input, view).run();
+            new GameController(restaurant, waiter, host, chef, cashier, input, view).run();
         } catch (QuitRequested q) {
             System.out.println("Game ended by player.");
         }

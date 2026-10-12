@@ -34,8 +34,8 @@ public final class CustomerTypesTest {
         checkEquals(1500, new RegularCustomer(1, 1).adjustBill(1500), "Regular pays full price");
         // price is locked through the shared PriceCalculator
         PriceCalculator pc = new PriceCalculator();
-        checkEquals(1350, pc.quote(v, Menu.base().itemAt(1)), "quote for VIP burger");
-        checkEquals(1500, pc.quote(new RegularCustomer(1, 1), Menu.base().itemAt(1)), "quote for Regular burger");
+        checkEquals(1350, pc.quote(v, Menu.base().itemAt(1), new HappyHour()), "quote for VIP burger");
+        checkEquals(1500, pc.quote(new RegularCustomer(1, 1), Menu.base().itemAt(1), new HappyHour()), "quote for Regular burger");
         // F1 is unchanged for a VIP
         checkEquals("Burger", v.chooseDish(Menu.base()).getName(), "VIP C2 follows rule F1");
 
@@ -68,10 +68,10 @@ public final class CustomerTypesTest {
         Customer c = new CriticCustomer(4, 10);
         checkEquals(12, c.getSatisfactionLossPerTurn(), "Critic loses 12 per turn");
         checkEquals("Critic", c.getTypeLabel(), "Critic label");
-        checkEquals("Pasta", c.chooseDish(Menu.base()).getName(), "Critic orders the priciest dish");
-        checkEquals("Salad", new RegularCustomer(4, 10).chooseDish(Menu.base()).getName(),
-                "a Regular C4 would order Salad (rule F1)");
-        checkEquals(1800, c.adjustBill(1800), "Critic pays full price");
+        checkEquals("Combo B", c.chooseDish(Menu.base()).getName(), "Critic orders the priciest item on the menu");
+        checkEquals("Combo A", new RegularCustomer(4, 10).chooseDish(Menu.base()).getName(),
+                "a Regular C4 would order Combo A (rule F1)");
+        checkEquals(2430, c.adjustBill(2430), "Critic pays full price");
 
         Menu tie = new Menu(java.util.List.of(new MenuItem("A", 500, 1), new MenuItem("B", 500, 1)));
         checkEquals("A", c.chooseDish(tie).getName(), "price tie goes to the first listed item");

@@ -17,6 +17,10 @@ import rush.domain.Customer;
 import rush.domain.CustomerStatus;
 import rush.domain.GameConfig;
 import rush.domain.GameOutcome;
+import rush.domain.Host;
+import rush.domain.HostTask;
+import rush.domain.HappyHour;
+import rush.domain.Money;
 import rush.domain.Order;
 import rush.domain.OrderStatus;
 import rush.domain.PriceCalculator;
@@ -64,6 +68,7 @@ public final class FuzzTest {
         final Random rnd;
         final Restaurant r = new Restaurant(GameConfig.base());
         final Waiter w = new Waiter("Waiter", new PriceCalculator());
+        final Host host = new Host("Host");
         final Chef c = new Chef("Chef");
         final Cashier k = new Cashier("Cashier");
         final long seed;
@@ -78,7 +83,7 @@ public final class FuzzTest {
 
         GameOutcome play() {
             ConsoleView view = new ConsoleView(new PrintStream(OutputStream.nullOutputStream()));
-            GameOutcome o = new GameController(r, w, c, k, this, view).run();
+            GameOutcome o = new GameController(r, w, host, c, k, this, view).run();
             audit(19);
             checkEquals(r.getConfig().targets().evaluate(r.getScoreboard()), o, "seed " + seed + " outcome matches");
             return o;
@@ -96,6 +101,24 @@ public final class FuzzTest {
                 case 3: return smartWaiter();
                 default: return WaitTask.INSTANCE;
             }
+        }
+
+        @Override
+        public HostTask nextHostTask(int turn) {
+            audit(turn);
+            if (rnd.nextInt(3) == 0) {
+                return WaitTask.INSTANCE;
+            }
+            if (rnd.nextBoolean() && !r.getQueue().isEmpty()) {
+                return new SeatTask(r.getQueue().get(0).getId(), null);
+            }
+            return new SeatTask(id(), rnd.nextBoolean() ? null : rnd.nextInt(4));
+        }
+
+        @Override
+        public boolean nextHappyHourDecision(int turn) {
+            audit(turn);
+            return rnd.nextInt(8) == 0;
         }
 
         @Override
@@ -183,8 +206,12 @@ public final class FuzzTest {
                     default:
                         break;
                 }
-                if (o != null && o.getLockedPriceCents() != cu.adjustBill(o.getItem().getPriceCents())) {
-                    bad(who + " price changed");
+                if (o != null) {
+                    int bill = cu.adjustBill(o.getItem().getPriceCents());
+                    if (o.getLockedPriceCents() != bill
+                            && o.getLockedPriceCents() != Money.discounted(bill, HappyHour.DISCOUNT_PERCENT)) {
+                        bad(who + " locked price is neither the bill nor the Happy Hour price");
+                    }
                 }
                 if (o != null && o.getUnitsDone() > o.getItem().getPrepUnits()) {
                     bad(who + " over-cooked");

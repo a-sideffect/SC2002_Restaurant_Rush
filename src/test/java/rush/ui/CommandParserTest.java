@@ -18,6 +18,7 @@ public final class CommandParserTest {
         valid();
         waiterErrors();
         chefErrors();
+        hostAndHappyHour();
     }
 
     private static void valid() throws Exception {
@@ -71,6 +72,49 @@ public final class CommandParserTest {
         expectWaiterError("serve x", "not a valid customer id");
         expectWaiterError("wait 3", "takes no arguments");
         expectWaiterError("c3", "Unknown command 'c3'");
+    }
+
+    private static void expectHostError(String line, String contains) {
+        try {
+            P.parseHost(line);
+            check(false, "host should reject '" + line + "'");
+        } catch (ParseError e) {
+            check(e.getMessage().contains(contains), "host '" + line + "' message: " + e.getMessage());
+        }
+    }
+
+    private static void expectYesNoError(String line) {
+        try {
+            P.parseYesNo(line);
+            check(false, "happy hour should reject '" + line + "'");
+        } catch (ParseError e) {
+            check(e.getMessage().contains("yes or no"), "happy hour '" + line + "' message: " + e.getMessage());
+        }
+    }
+
+    private static void hostAndHappyHour() throws Exception {
+        checkEquals(new SeatTask(3, null), P.parseHost("seat 3"), "host seat default table");
+        checkEquals(new SeatTask(4, 2), P.parseHost("SEAT C4 t2"), "host seat with table and prefixes");
+        check(P.parseHost("wait") == WaitTask.INSTANCE, "host wait");
+        check(P.parseHost(" w ") == WaitTask.INSTANCE, "host w");
+        expectHostError("", "Please type a command");
+        expectHostError("order 1", "'order' is a Waiter task. Host can: seat, wait.");
+        expectHostError("serve 1", "'serve' is a Waiter task. Host can: seat, wait.");
+        expectHostError("cook 1", "'cook' is a Chef task. Host can: seat, wait.");
+        expectHostError("seat", "'seat' needs a customer id");
+        expectHostError("seat x", "not a valid customer id");
+        expectHostError("seat 1 2 3", "takes a customer and an optional table");
+        expectHostError("wait 2", "takes no arguments");
+        expectHostError("greet 1", "Unknown command 'greet'");
+
+        check(P.parseYesNo("yes"), "yes");
+        check(P.parseYesNo(" Y "), "y with spaces and case");
+        check(!P.parseYesNo("no"), "no");
+        check(!P.parseYesNo("N"), "n");
+        expectYesNoError("");
+        expectYesNoError("maybe");
+        expectYesNoError("yes please");
+        expectYesNoError("wait");
     }
 
     private static void chefErrors() {

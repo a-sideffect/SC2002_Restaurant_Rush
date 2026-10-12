@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Locale;
 import rush.control.ManagerInput;
 import rush.domain.ChefTask;
+import rush.domain.HostTask;
 import rush.domain.Restaurant;
 import rush.domain.Staff;
 import rush.domain.WaiterTask;
@@ -41,12 +42,22 @@ public class ConsoleInput implements ManagerInput {
 
     @Override
     public WaiterTask nextWaiterTask(int turn) {
-        return prompt("Waiter", turn, parser::parseWaiter);
+        return prompt("Waiter", turn, parser::parseWaiter, "wait");
+    }
+
+    @Override
+    public HostTask nextHostTask(int turn) {
+        return prompt("Host", turn, parser::parseHost, "wait");
     }
 
     @Override
     public ChefTask nextChefTask(int turn) {
-        return prompt("Chef", turn, parser::parseChef);
+        return prompt("Chef", turn, parser::parseChef, "wait");
+    }
+
+    @Override
+    public boolean nextHappyHourDecision(int turn) {
+        return prompt("Happy Hour", turn, parser::parseYesNo, "no");
     }
 
     /** Reads one line after printing the prompt; null at end of input. */
@@ -65,7 +76,8 @@ public class ConsoleInput implements ManagerInput {
         return line != null && !line.isEmpty() && line.charAt(0) == '\uFEFF' ? line.substring(1) : line;
     }
 
-    private <T> T prompt(String role, int turn, Parse<T> parse) {
+    /** {@code eofLine} is what an unanswered prompt counts as when the input has closed ("wait" or "no"). */
+    private <T> T prompt(String role, int turn, Parse<T> parse, String eofLine) {
         while (true) {
             String line = readLine(role + "> ");
             if (line == null) {
@@ -74,7 +86,7 @@ public class ConsoleInput implements ManagerInput {
                     out.println();
                     view.showInfo("(input closed - remaining turns will wait)");
                 }
-                return parseWait(parse);
+                return parseDefault(parse, eofLine);
             }
             if (handleMeta(line, role, turn)) {
                 continue;
@@ -87,11 +99,11 @@ public class ConsoleInput implements ManagerInput {
         }
     }
 
-    private static <T> T parseWait(Parse<T> parse) {
+    private static <T> T parseDefault(Parse<T> parse, String line) {
         try {
-            return parse.parse("wait");
+            return parse.parse(line);
         } catch (ParseError e) {
-            throw new IllegalStateException("'wait' must always parse", e);
+            throw new IllegalStateException("'" + line + "' must always parse", e);
         }
     }
 

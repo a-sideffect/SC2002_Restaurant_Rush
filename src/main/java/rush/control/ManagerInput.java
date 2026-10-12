@@ -1,6 +1,7 @@
 package rush.control;
 
 import rush.domain.ChefTask;
+import rush.domain.HostTask;
 import rush.domain.WaiterTask;
 
 /**
@@ -11,5 +12,10 @@ public interface ManagerInput {
     /** Returns a syntactically valid Waiter task; help/status/menu are handled inside. */
     WaiterTask nextWaiterTask(int turn);
 
+    HostTask nextHostTask(int turn);
+
     ChefTask nextChefTask(int turn);
+
+    /** Asked at the start of a turn while Happy Hour is still unused: start it now? */
+    boolean nextHappyHourDecision(int turn);
 }

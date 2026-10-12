@@ -454,6 +454,14 @@ classDiagram
       +getSatisfactionLossPerTurn() int
       +getTypeLabel() String
     }
+    class VIPCustomer {
+      +getSatisfactionLossPerTurn() int
+      +adjustBill(int baseCents) int
+    }
+    class CriticCustomer {
+      +getSatisfactionLossPerTurn() int
+      +chooseDish(Menu menu) MenuItem
+    }
     class Order {
       -customer: Customer
       -item: MenuItem
@@ -473,6 +481,28 @@ classDiagram
       +base()$ Menu
       +itemAt(int i) MenuItem
       +size() int
+    }
+    class ComboMeal {
+      -first: MenuItem
+      -second: MenuItem
+      +getDescription() String
+    }
+    class HappyHour {
+      -used: boolean
+      -remainingTurns: int
+      +isAvailable() boolean
+      +isActive() boolean
+      +apply(int cents) int
+    }
+    class SatisfactionChange {
+      <<record>>
+    }
+    class Host {
+      +seat(Restaurant r, int cid, Integer tableNo) ActionResult
+    }
+    class HostTask {
+      <<interface>>
+      +execute(Host h, Restaurant r, int turn) ActionResult
     }
     class Table {
       -number: int
@@ -559,6 +589,17 @@ classDiagram
     GameConfig --> VictoryTargets
     Menu *-- "1..*" MenuItem
     Customer <|-- RegularCustomer
+    Customer <|-- VIPCustomer
+    Customer <|-- CriticCustomer
+    MenuItem <|-- ComboMeal
+    ComboMeal --> "2" MenuItem
+    Restaurant *-- "1" HappyHour
+    Restaurant ..> SatisfactionChange
+    Staff <|-- Host
+    HostTask <|.. SeatTask
+    HostTask <|.. WaitTask
+    GameController --> "1" Host
+    PriceCalculator ..> HappyHour
     Customer "1" --> "0..1" Order
     Customer --> "0..1" Table
     Order --> "1" MenuItem

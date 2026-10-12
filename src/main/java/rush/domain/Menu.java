@@ -13,12 +13,17 @@ public class Menu {
         this.items = List.copyOf(items);
     }
 
-    /** The base-setting menu: Salad $9.00/1, Burger $15.00/1, Pasta $18.00/2. */
+    /**
+     * The base-setting menu: Salad $9.00/1, Burger $15.00/1, Pasta $18.00/2, then two combos.
+     * The single dishes stay first so rule F1 gives the same dishes to the first customers.
+     */
     public static Menu base() {
-        return new Menu(List.of(
-                new MenuItem("Salad", 900, 1),
-                new MenuItem("Burger", 1500, 1),
-                new MenuItem("Pasta", 1800, 2)));
+        MenuItem salad = new MenuItem("Salad", 900, 1);
+        MenuItem burger = new MenuItem("Burger", 1500, 1);
+        MenuItem pasta = new MenuItem("Pasta", 1800, 2);
+        return new Menu(List.of(salad, burger, pasta,
+                new ComboMeal("Combo A", salad, burger),
+                new ComboMeal("Combo B", salad, pasta)));
     }
 
     public MenuItem itemAt(int index) { return items.get(index); }

@@ -1,0 +1,86 @@
+# Restaurant Rush - Stage 3 - Victory run (Host, combos, Happy Hour started on turn 12)
+# Four lines per turn once Happy Hour is used up: Waiter, Host, Chef. Before that, a yes/no Happy Hour line comes first.
+# Turn 1
+no
+seat 1
+wait
+wait
+# Turn 2
+no
+order 1
+wait
+cook 1
+# Turn 3
+no
+serve 1
+wait
+wait
+# Turn 4
+no
+seat 2
+wait
+wait
+# Turn 5
+no
+order 2
+wait
+cook 2
+# Turn 6
+no
+serve 2
+wait
+wait
+# Turn 7
+no
+seat 3
+wait
+wait
+# Turn 8
+no
+order 3
+wait
+cook 3
+# Turn 9
+no
+wait
+wait
+cook 3
+# Turn 10
+no
+seat 4
+wait
+wait
+# Turn 11
+no
+order 4
+wait
+cook 4
+# Turn 12
+yes
+wait
+wait
+cook 4
+# Turn 13
+serve 3
+wait
+cook 4
+# Turn 14
+serve 4
+wait
+wait
+# Turn 15
+wait
+wait
+wait
+# Turn 16
+seat 5
+wait
+wait
+# Turn 17
+seat 6
+wait
+wait
+# Turn 18
+order 5
+wait
+cook 5

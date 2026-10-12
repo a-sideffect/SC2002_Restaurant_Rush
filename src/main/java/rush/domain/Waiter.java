@@ -40,7 +40,7 @@ public class Waiter extends Staff {
             return ActionResult.fail(c.getLabel() + " cannot order now (status: " + c.getStatus() + ").");
         }
         MenuItem dish = c.chooseDish(r.getMenu());
-        int price = priceCalculator.quote(c, dish);
+        int price = priceCalculator.quote(c, dish, r.getHappyHour());
         c.placeOrder(new Order(c, dish, price, turn));
         return ActionResult.ok("Waiter takes " + c.getLabel() + "'s order: " + dish.getName() + " "
                 + Money.format(price) + " (" + dish.getPrepUnits()

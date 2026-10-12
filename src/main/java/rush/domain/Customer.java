@@ -96,6 +96,10 @@ public abstract class Customer {
         this.status = CustomerStatus.PAID;
     }
 
+    void gainSatisfaction(int amount) {
+        satisfaction = Math.min(MAX_SATISFACTION, satisfaction + amount);
+    }
+
     void loseSatisfaction(int amount) {
         satisfaction = Math.max(0, satisfaction - amount);
     }

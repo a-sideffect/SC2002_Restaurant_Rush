@@ -15,7 +15,7 @@ public final class CustomerTest {
 
         // Rule F1
         Menu menu = Menu.base();
-        String[] expected = {"Salad", "Burger", "Pasta", "Salad", "Burger", "Pasta"};
+        String[] expected = {"Salad", "Burger", "Pasta", "Combo A", "Combo B", "Salad"};
         for (int i = 1; i <= 6; i++) {
             checkEquals(expected[i - 1], new RegularCustomer(i, 1).chooseDish(menu).getName(), "H5 F1 C" + i);
         }

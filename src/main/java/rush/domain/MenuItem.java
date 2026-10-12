@@ -22,6 +22,9 @@ public class MenuItem {
     public int getPriceCents() { return priceCents; }
     public int getPrepUnits() { return prepUnits; }
 
+    /** Name plus anything worth showing on the menu; a combo lists its parts. */
+    public String getDescription() { return name; }
+
     @Override
     public String toString() {
         return name + " (" + Money.format(priceCents) + ", " + prepUnits

@@ -104,6 +104,39 @@ Decision: the base setting now contains a VIP and a Critic, so the Stage 1 hand-
 They are kept as tests under a Regular-only test setting (`TestConfigs.regularOnly()`), and the files stay in `scripts/`.
 Why: the game is data-driven, so an older setting is one config, not a code branch.
 
+## Stage 3: Host reuses Restaurant.seatCustomer; tasks serve two roles
+Decision: `Host` is a new `Staff` that calls the same seating method as the Waiter. `SeatTask` and `WaitTask`
+implement `HostTask` as well as `WaiterTask`, so the parser and tasks are not duplicated. The controller gets one
+more prompt, and the board lists the Host without any view change.
+Alternatives: copying the seating checks into `Host`; a separate `HostSeatTask`.
+Why: one place for the seating rules (DRY), and the Stage 1 prediction that Stage 3 would only add a staff role held.
+Principles: DRY, OCP, polymorphism.
+
+## Stage 3: ComboMeal is a MenuItem
+Decision: `ComboMeal extends MenuItem` and is built from two items; the menu lists it after the single dishes.
+Nothing that handles orders knows about combos. `MenuItem.getDescription()` lets the menu show a combo's parts
+without the view checking types.
+Why: `Order`, `Chef`, `Menu` and `PriceCalculator` work unchanged; keeping dishes first keeps rule F1's results
+for C1 to C3.
+Principles: LSP, composition, OCP.
+
+## Stage 3: Happy Hour lives in the domain, owned by Restaurant
+Decision: `HappyHour` holds its own state (unused, active, turns left). `Restaurant` owns it and applies the
+recovery; `PriceCalculator.quote` applies the discount after the customer's own bill. The controller only sequences:
+ask, apply recovery, end the turn.
+Alternatives: a flag and arithmetic in the controller.
+Why: the promotion rules are testable without the UI, and "VIP discount first, then Happy Hour" is in one method.
+Principles: SRP, encapsulation.
+
+## Stage 3: seat messages are staff-neutral
+Decision: `Restaurant.seatCustomer` says "Seated C1 at T1." instead of "Waiter seats ...".
+Why: two roles call it; naming one of them would be wrong half the time.
+
+## Stage 3: earlier-stage scripts are removed from the working tree
+Decision: the prompt format changed (Happy Hour question, Host line), so Stage 1 and 2 scripts no longer run.
+They stay available at the `stage-1` and `stage-2` tags; their rules are covered by unit tests.
+Why: scripts that fail at the current commit would mislead anyone running them.
+
 ## Rejected: one GameEngine class with a command switch
 Why rejected: every later feature would mean editing it (OCP violation), and customer behaviour would need type
 checks that the brief bans.

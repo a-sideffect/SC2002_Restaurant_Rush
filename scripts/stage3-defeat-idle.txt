@@ -1,55 +1,92 @@
-# Restaurant Rush - Stage 1 - Defeat run (idle): the manager never does anything
+# Restaurant Rush - Stage 3 - Defeat run (idle): the manager never does anything
+# Four lines per turn once Happy Hour is used up: Waiter, Host, Chef. Before that, a yes/no Happy Hour line comes first.
 # Turn 1
+no
+wait
 wait
 wait
 # Turn 2
+no
+wait
 wait
 wait
 # Turn 3
+no
+wait
 wait
 wait
 # Turn 4
+no
+wait
 wait
 wait
 # Turn 5
+no
+wait
 wait
 wait
 # Turn 6
+no
+wait
 wait
 wait
 # Turn 7
+no
+wait
 wait
 wait
 # Turn 8
+no
+wait
 wait
 wait
 # Turn 9
+no
+wait
 wait
 wait
 # Turn 10
+no
+wait
 wait
 wait
 # Turn 11
+no
+wait
 wait
 wait
 # Turn 12
+no
+wait
 wait
 wait
 # Turn 13
+no
+wait
 wait
 wait
 # Turn 14
+no
+wait
 wait
 wait
 # Turn 15
+no
+wait
 wait
 wait
 # Turn 16
+no
+wait
 wait
 wait
 # Turn 17
+no
+wait
 wait
 wait
 # Turn 18
+no
+wait
 wait
 wait
