@@ -27,10 +27,10 @@ public final class StaffTest {
         checkEquals(java.util.List.of("seat C1 at T1"), w.describeAvailableTasks(r, 1), "seat offered");
         w.seat(r, 1, 2);
         checkEquals(java.util.List.of("order C1"), w.describeAvailableTasks(r, 1), "order offered once seated");
-        w.takeOrder(r, 1, 2);
+        w.takeOrder(r, 1);
         checkEquals(java.util.List.of("cook C1 Salad (0/1)"), chef.describeAvailableTasks(r, 2), "cook offered");
         checkEquals(java.util.List.of(), w.describeAvailableTasks(r, 2), "nothing to serve until READY");
-        chef.cook(r, 1, 2);
+        chef.cook(r, 1);
         checkEquals(java.util.List.of(), chef.describeAvailableTasks(r, 2), "READY order is not cookable");
         checkEquals(java.util.List.of("serve C1 (Salad)"), w.describeAvailableTasks(r, 3), "serve offered when READY");
         w.serve(r, 1, 3);
@@ -57,27 +57,27 @@ public final class StaffTest {
         Chef chef = new Chef("C");
         r.admitArrivals(1);
 
-        check(!w.takeOrder(r, 1, 1).success(), "R2.3 order requires SEATED");
+        check(!w.takeOrder(r, 1).success(), "R2.3 order requires SEATED");
         check(!w.serve(r, 1, 1).success(), "serve requires an order");
         check(w.seat(r, 1, 1).success(), "seat ok");
 
-        ActionResult order = w.takeOrder(r, 1, 2);
+        ActionResult order = w.takeOrder(r, 1);
         check(order.success(), "R2.3 order ok");
         check(order.message().contains("Salad") && order.message().contains("$9.00"), "D3 dish shown");
         Order o = r.findCustomer(1).orElseThrow().getOrder().orElseThrow();
         checkEquals(900, o.getLockedPriceCents(), "R2.3 price locked");
-        check(!w.takeOrder(r, 1, 2).success(), "cannot order twice");
-        check(w.takeOrder(r, 1, 2).message().startsWith("C1 has already ordered Salad (PLACED 0/1)"),
+        check(!w.takeOrder(r, 1).success(), "cannot order twice");
+        check(w.takeOrder(r, 1).message().startsWith("C1 has already ordered Salad (PLACED 0/1)"),
                 "already-ordered message");
 
         check(!w.serve(r, 1, 2).success(), "R2.4 cannot serve PLACED order");
-        check(chef.cook(r, 1, 2).success(), "R3.3 chef cooks order taken same turn");
-        check(!chef.cook(r, 1, 2).success(), "R3.1 cooking READY order fails");
-        checkEquals("C1's Salad is READY and does not need cooking.", chef.cook(r, 1, 2).message(), "cook message");
+        check(chef.cook(r, 1).success(), "R3.3 chef cooks order taken same turn");
+        check(!chef.cook(r, 1).success(), "R3.1 cooking READY order fails");
+        checkEquals("C1's Salad is READY and does not need cooking.", chef.cook(r, 1).message(), "cook message");
         check(w.serve(r, 1, 3).success(), "R2.4 serve READY order");
         checkEquals(CustomerStatus.EATING, r.findCustomer(1).orElseThrow().getStatus(), "EATING");
         checkEquals(1, r.getScoreboard().getServedCount(), "served counted");
-        check(!chef.cook(r, 1, 3).success(), "cook SERVED order fails");
+        check(!chef.cook(r, 1).success(), "cook SERVED order fails");
         check(!w.seat(r, 9, null).success(), "failed action reports failure (not consumed)");
         check(WaitTask.INSTANCE.execute(w, r, 3).success(), "R2.5 wait always valid");
     }
@@ -87,17 +87,17 @@ public final class StaffTest {
         Waiter w = new Waiter("W", new PriceCalculator());
         Chef chef = new Chef("C");
         r.admitArrivals(1);
-        check(!chef.cook(r, 1, 1).success(), "cook with no order fails");
-        check(!chef.cook(r, 7, 1).success(), "cook unknown customer fails");
+        check(!chef.cook(r, 1).success(), "cook with no order fails");
+        check(!chef.cook(r, 7).success(), "cook unknown customer fails");
         // Pasta customer is C3; build via a Pasta-only config
         Restaurant pr = new Restaurant(FlowTest.pastaConfig());
         pr.admitArrivals(1);
         w.seat(pr, 1, 1);
-        w.takeOrder(pr, 1, 2);
-        checkEquals("Chef cooks Pasta for C1 (1/2).", chef.cook(pr, 1, 2).message(), "R3.1 pasta first cook");
+        w.takeOrder(pr, 1);
+        checkEquals("Chef cooks Pasta for C1 (1/2).", chef.cook(pr, 1).message(), "R3.1 pasta first cook");
         check(!w.serve(pr, 1, 2).success(), "cannot serve COOKING");
         check(w.serve(pr, 1, 2).message().contains("not READY (1/2 units done)"), "serve not-ready message");
-        check(chef.cook(pr, 1, 3).message().contains("READY"), "R3.1 pasta second cook ready");
+        check(chef.cook(pr, 1).message().contains("READY"), "R3.1 pasta second cook ready");
     }
 
     private static void cashierRules() {
@@ -109,11 +109,11 @@ public final class StaffTest {
         r.admitArrivals(1);
         r.admitArrivals(4);
         w.seat(r, 1, 1);
-        w.takeOrder(r, 1, 2);
+        w.takeOrder(r, 1);
         w.seat(r, 2, 2);
-        w.takeOrder(r, 2, 3);
-        chef.cook(r, 1, 3);
-        chef.cook(r, 2, 4);
+        w.takeOrder(r, 2);
+        chef.cook(r, 1);
+        chef.cook(r, 2);
         w.serve(r, 1, 5);
         w.serve(r, 2, 5);
         check(r.finishEating(5).isEmpty(), "R4.4 not ready to pay on the serve turn");

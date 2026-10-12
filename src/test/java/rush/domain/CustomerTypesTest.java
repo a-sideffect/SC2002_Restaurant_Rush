@@ -48,9 +48,9 @@ public final class CustomerTypesTest {
         r.admitArrivals(4);
         checkEquals(VIPCustomer.class, r.findCustomer(2).orElseThrow().getClass(), "C2 is the VIP in the base run");
         w.seat(r, 2, null);
-        ActionResult order = w.takeOrder(r, 2, 4);
+        ActionResult order = w.takeOrder(r, 2);
         check(order.message().contains("$13.50"), "order message shows the discounted price");
-        chef.cook(r, 2, 4);
+        chef.cook(r, 2);
         w.serve(r, 2, 5);
         r.finishEating(6);
         checkEquals(1350, cashier.collect(r, 7).orElseThrow().amountCents(), "VIP pays the discounted amount");

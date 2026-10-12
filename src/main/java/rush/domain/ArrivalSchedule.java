@@ -38,8 +38,6 @@ public class ArrivalSchedule {
         return arrivals.stream().filter(a -> a.turn() == turn).toList();
     }
 
-    public int totalArrivals() { return arrivals.size(); }
-
     /** The distinct turns on which someone arrives, ascending. */
     public List<Integer> getArrivalTurns() {
         return arrivals.stream().map(ScheduledArrival::turn).distinct().sorted().toList();

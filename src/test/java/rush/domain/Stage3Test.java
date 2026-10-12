@@ -80,14 +80,14 @@ public final class Stage3Test {
         }
         Customer c4 = r.findCustomer(4).orElseThrow();
         r.seatCustomer(4, null);
-        ActionResult order = w.takeOrder(r, 4, 10);
+        ActionResult order = w.takeOrder(r, 4);
         check(order.message().contains("Combo B") && order.message().contains("$24.30")
                 && order.message().contains("3 units"), "order message shows combo, price and units");
         Order o = c4.getOrder().orElseThrow();
-        check(!chef.cook(r, 4, 10).message().contains("READY"), "combo needs more than one cook");
-        chef.cook(r, 4, 11);
+        check(!chef.cook(r, 4).message().contains("READY"), "combo needs more than one cook");
+        chef.cook(r, 4);
         check(!o.isReady(), "still cooking after 2 of 3 units");
-        check(chef.cook(r, 4, 12).message().contains("READY"), "combo ready after 3 units");
+        check(chef.cook(r, 4).message().contains("READY"), "combo ready after 3 units");
         checkEquals(3, o.getUnitsDone(), "three units done");
     }
 
@@ -139,7 +139,7 @@ public final class Stage3Test {
         r.admitArrivals(7);
         check(r.applyHappyHourRecovery().isEmpty(), "no recovery before activation");
         r.seatCustomer(1, null);
-        w.takeOrder(r, 1, 2);
+        w.takeOrder(r, 1);
         r.findCustomer(1).orElseThrow().loseSatisfaction(40);      // C1: ordered, 60
         r.findCustomer(2).orElseThrow().loseSatisfaction(95);      // C2: waiting, 5
         r.findCustomer(3).orElseThrow().loseSatisfaction(10);      // C3: waiting, 90
@@ -161,8 +161,8 @@ public final class Stage3Test {
         Chef chef = new Chef("C");
         r2.admitArrivals(1);
         r2.seatCustomer(1, null);
-        w2.takeOrder(r2, 1, 2);
-        chef.cook(r2, 1, 2);
+        w2.takeOrder(r2, 1);
+        chef.cook(r2, 1);
         r2.findCustomer(1).orElseThrow().loseSatisfaction(30);
         w2.serve(r2, 1, 3);
         r2.activateHappyHour();
@@ -191,15 +191,15 @@ public final class Stage3Test {
         r.admitArrivals(4);
         r.seatCustomer(1, null);
         r.seatCustomer(2, null);
-        w.takeOrder(r, 1, 4);                       // before Happy Hour: Salad $9.00
+        w.takeOrder(r, 1);                       // before Happy Hour: Salad $9.00
         r.activateHappyHour();
-        w.takeOrder(r, 2, 4);                       // during: Burger $15.00 -> $12.00
+        w.takeOrder(r, 2);                       // during: Burger $15.00 -> $12.00
         checkEquals(900, r.findCustomer(1).orElseThrow().getOrder().orElseThrow().getLockedPriceCents(),
                 "existing order keeps its price");
         checkEquals(1200, r.findCustomer(2).orElseThrow().getOrder().orElseThrow().getLockedPriceCents(),
                 "new order gets 20% off");
-        chef.cook(r, 1, 4);
-        chef.cook(r, 2, 5);
+        chef.cook(r, 1);
+        chef.cook(r, 2);
         w.serve(r, 1, 5);
         w.serve(r, 2, 6);
         r.finishEating(6);

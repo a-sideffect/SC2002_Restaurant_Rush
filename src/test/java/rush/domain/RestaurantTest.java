@@ -72,7 +72,7 @@ public final class RestaurantTest {
         Waiter w = new Waiter("W", new PriceCalculator());
         r.admitArrivals(1);
         r.seatCustomer(1, 1);
-        w.takeOrder(r, 1, 2);
+        w.takeOrder(r, 1);
         Customer c = r.findCustomer(1).orElseThrow();
         // 100 -> 92 -> ... -> 4 after 12 turns, 0 on the 13th
         for (int i = 1; i <= 12; i++) {

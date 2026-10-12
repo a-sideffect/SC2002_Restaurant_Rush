@@ -22,7 +22,7 @@ public class Waiter extends Staff {
     }
 
     /** R2.3: the customer chooses the dish and the price is locked now. */
-    public ActionResult takeOrder(Restaurant r, int customerId, int turn) {
+    public ActionResult takeOrder(Restaurant r, int customerId) {
         Optional<Customer> found = r.findCustomer(customerId);
         if (found.isEmpty()) {
             return ActionResult.fail("There is no customer C" + customerId + ".");
@@ -41,7 +41,7 @@ public class Waiter extends Staff {
         }
         MenuItem dish = c.chooseDish(r.getMenu());
         int price = priceCalculator.quote(c, dish, r.getHappyHour());
-        c.placeOrder(new Order(c, dish, price, turn));
+        c.placeOrder(new Order(c, dish, price));
         return ActionResult.ok("Waiter takes " + c.getLabel() + "'s order: " + dish.getName() + " "
                 + Money.format(price) + " (" + dish.getPrepUnits()
                 + (dish.getPrepUnits() == 1 ? " unit)." : " units)."));

@@ -4,7 +4,7 @@ package rush.domain;
 public record CookTask(int customerId) implements ChefTask {
     @Override
     public ActionResult execute(Chef c, Restaurant r, int turn) {
-        return c.cook(r, customerId, turn);
+        return c.cook(r, customerId);
     }
 
     @Override

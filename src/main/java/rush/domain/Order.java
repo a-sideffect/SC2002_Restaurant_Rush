@@ -5,25 +5,19 @@ public class Order {
     private final Customer customer;
     private final MenuItem item;
     private final int lockedPriceCents;
-    private final int takenTurn;
     private int unitsDone;
-    private int readyTurn = -1;
     private OrderStatus status = OrderStatus.PLACED;
 
-    Order(Customer customer, MenuItem item, int lockedPriceCents, int takenTurn) {
+    Order(Customer customer, MenuItem item, int lockedPriceCents) {
         this.customer = customer;
         this.item = item;
         this.lockedPriceCents = lockedPriceCents;
-        this.takenTurn = takenTurn;
     }
 
     public Customer getCustomer() { return customer; }
     public MenuItem getItem() { return item; }
     public int getLockedPriceCents() { return lockedPriceCents; }
-    public int getTakenTurn() { return takenTurn; }
-    public int getReadyTurn() { return readyTurn; }
     public int getUnitsDone() { return unitsDone; }
-    public int getRemainingUnits() { return item.getPrepUnits() - unitsDone; }
     public OrderStatus getStatus() { return status; }
 
     /** True while the Chef still has units to prepare (PLACED or COOKING). */
@@ -37,14 +31,13 @@ public class Order {
     public String progressLabel() { return unitsDone + "/" + item.getPrepUnits(); }
 
     /** Advances preparation by one unit; returns true if the order just became READY. */
-    boolean advanceOneUnit(int turn) {
+    boolean advanceOneUnit() {
         if (!isCookable()) {
             throw new IllegalStateException("Order is " + status + " and cannot be cooked");
         }
         unitsDone++;
         if (unitsDone == item.getPrepUnits()) {
             status = OrderStatus.READY;
-            readyTurn = turn;
             return true;
         }
         status = OrderStatus.COOKING;

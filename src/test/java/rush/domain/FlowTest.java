@@ -52,10 +52,10 @@ public final class FlowTest {
                 c = r.findCustomer(1).orElseThrow();
                 w.seat(r, 1, 1);
             } else if (turn == 2) {
-                w.takeOrder(r, 1, turn);
-                chef.cook(r, 1, turn);
+                w.takeOrder(r, 1);
+                chef.cook(r, 1);
             } else if (turn == 3) {
-                chef.cook(r, 1, turn);
+                chef.cook(r, 1);
             } else if (turn == 4) {
                 w.serve(r, 1, turn);
             }
@@ -84,8 +84,8 @@ public final class FlowTest {
             if (turn == 16) {
                 w.seat(r, 6, null);
             } else if (turn == 17) {
-                w.takeOrder(r, 6, turn);
-                chef.cook(r, 6, turn);
+                w.takeOrder(r, 6);
+                chef.cook(r, 6);
             } else if (turn == 18) {
                 w.serve(r, 6, turn);
             }
@@ -112,13 +112,13 @@ public final class FlowTest {
             String[] a = waiter[turn - 1].split(" ");
             ActionResult res = switch (a[0]) {
                 case "seat" -> w.seat(r, Integer.parseInt(a[1]), Integer.parseInt(a[2]));
-                case "order" -> w.takeOrder(r, Integer.parseInt(a[1]), turn);
+                case "order" -> w.takeOrder(r, Integer.parseInt(a[1]));
                 case "serve" -> w.serve(r, Integer.parseInt(a[1]), turn);
                 default -> ActionResult.ok("wait");
             };
             check(res.success(), "victory line waiter turn " + turn + ": " + res.message());
             if (!cook[turn - 1].equals("-")) {
-                ActionResult cr = chef.cook(r, Integer.parseInt(cook[turn - 1]), turn);
+                ActionResult cr = chef.cook(r, Integer.parseInt(cook[turn - 1]));
                 check(cr.success(), "victory line chef turn " + turn + ": " + cr.message());
             }
             autoPhase(r, cashier, turn);

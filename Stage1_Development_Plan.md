@@ -268,7 +268,7 @@ Why the Waiter prompt is executed *before* the Chef prompt is shown: the brief s
 - **R2.6** An invalid command prints the reason (Section 7.4) and re-prompts. **The Waiter's task is not consumed** (R-A4).
 
 **Step 2/3b: Chef (at most one preparation unit)**
-- **R3.1 cook(c):** valid iff `c` has an order in PLACED or COOKING. Effect: `unitsDone++`; if `unitsDone == prepUnits` → READY (record `readyTurn`), else → COOKING.
+- **R3.1 cook(c):** valid iff `c` has an order in PLACED or COOKING. Effect: `unitsDone++`; if `unitsDone == prepUnits` → READY, else → COOKING.
 - **R3.2** An order that becomes READY this turn can't be served this turn. This is guaranteed by the Waiter-before-Chef execution order; there is no extra flag to check.
 - **R3.3** The Chef may cook an order taken by the Waiter this same turn.
 - **R3.4 wait:** always valid. An invalid command re-prompts without consuming.
@@ -468,7 +468,7 @@ classDiagram
       -lockedPriceCents: int
       -unitsDone: int
       -status: OrderStatus
-      ~advanceOneUnit(int turn) boolean
+      ~advanceOneUnit() boolean
       +isCookable() boolean
     }
     class MenuItem {
@@ -517,11 +517,11 @@ classDiagram
     class Waiter {
       -priceCalculator: PriceCalculator
       +seat(Restaurant r, int cid, int tableNo) ActionResult
-      +takeOrder(Restaurant r, int cid, int turn) ActionResult
+      +takeOrder(Restaurant r, int cid) ActionResult
       +serve(Restaurant r, int cid, int turn) ActionResult
     }
     class Chef {
-      +cook(Restaurant r, int cid, int turn) ActionResult
+      +cook(Restaurant r, int cid) ActionResult
     }
     class Cashier {
       +collect(Restaurant r, int turn) Optional~Payment~
@@ -650,7 +650,7 @@ sequenceDiagram
         GC->>UI: nextChefTask(turn)
         UI-->>GC: CookTask(3)
         GC->>Ch: task.execute(Ch, R, turn)
-        Ch->>O: advanceOneUnit(turn)
+        Ch->>O: advanceOneUnit()
         alt last unit done
             O->>O: status = READY
         end
@@ -732,12 +732,12 @@ void leave();                         // -> LEFT, table = null
 
 #### `Order`
 ```java
-Order(Customer customer, MenuItem item, int lockedPriceCents, int takenTurn)
+Order(Customer customer, MenuItem item, int lockedPriceCents)
 public Customer getCustomer(); public MenuItem getItem(); public int getLockedPriceCents();
-public int getUnitsDone(); public int getRemainingUnits(); public OrderStatus getStatus();
+public int getUnitsDone(); public OrderStatus getStatus();
 public boolean isCookable()              // PLACED or COOKING
 public boolean isReady()                 // READY
-boolean advanceOneUnit(int turn)         // returns true if it just became READY
+boolean advanceOneUnit()                // returns true if it just became READY
 void markServed(); void markPaid(); void cancel();
 public String progressLabel()            // "1/2"
 ```
@@ -785,7 +785,6 @@ public record ScheduledArrival(int turn, CustomerFactory factory) {}
 public ArrivalSchedule(List<ScheduledArrival> arrivals)
 public static ArrivalSchedule base()   // turns 1,4,7,10,13,16 -> RegularCustomer::new
 public List<ScheduledArrival> arrivalsAt(int turn)
-public int totalArrivals()
 ```
 > Why a factory per arrival: Stage 2 must put at least one VIP and one Critic into the base run. It changes **only** `ArrivalSchedule.base()` (e.g. turn 4 → `VIPCustomer::new`, turn 7 → `CriticCustomer::new`), which is a "small registration change" the brief explicitly allows.
 
@@ -838,14 +837,14 @@ public abstract List<String> describeAvailableTasks(Restaurant r, int turn);
 #### `Waiter extends Staff`
 ```java
 public ActionResult seat(Restaurant r, int customerId, Integer tableNo)  // delegates to r.seatCustomer
-public ActionResult takeOrder(Restaurant r, int customerId, int turn)    // R2.3, uses PriceCalculator
+public ActionResult takeOrder(Restaurant r, int customerId)              // R2.3, uses PriceCalculator
 public ActionResult serve(Restaurant r, int customerId, int turn)        // R2.4
 describeAvailableTasks -> e.g. ["seat C4 at T2", "serve C3 (Pasta)"]
 ```
 
 #### `Chef extends Staff`
 ```java
-public ActionResult cook(Restaurant r, int customerId, int turn)         // R3.1
+public ActionResult cook(Restaurant r, int customerId)                   // R3.1
 describeAvailableTasks -> e.g. ["cook C3 Pasta (1/2)"]
 ```
 

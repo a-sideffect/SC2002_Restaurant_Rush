@@ -12,7 +12,7 @@ public class Chef extends Staff {
     public String getRole() { return "Chef"; }
 
     /** R3.1: advances the customer's order by one preparation unit. */
-    public ActionResult cook(Restaurant r, int customerId, int turn) {
+    public ActionResult cook(Restaurant r, int customerId) {
         Optional<Customer> found = r.findCustomer(customerId);
         if (found.isEmpty()) {
             return ActionResult.fail("There is no customer C" + customerId + ".");
@@ -27,7 +27,7 @@ public class Chef extends Staff {
                     : " is " + o.getStatus() + " and cannot be cooked.";
             return ActionResult.fail(c.getLabel() + "'s " + o.getItem().getName() + reason);
         }
-        boolean nowReady = o.advanceOneUnit(turn);
+        boolean nowReady = o.advanceOneUnit();
         String name = o.getItem().getName();
         return ActionResult.ok(nowReady
                 ? "Chef finishes " + name + " for " + c.getLabel() + " (READY)."
