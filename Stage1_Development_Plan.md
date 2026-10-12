@@ -1037,9 +1037,9 @@ Final screen: the same numbers, plus a checklist of the three targets with PASS/
 ```
 restaurant-rush/
 ├── README.md                     # build/run, controls, stage notes, (later) video timestamps
-├── build.bat  build.sh           # compile game into out/
-├── run.bat    run.sh             # run game, passes args through
-├── test.bat   test.sh            # compile main+test into out-test/ and run TestRunner
+├── build.bat                     # compile game into out/
+├── run.bat                       # run game, passes args through
+├── test.bat                      # compile main+test into out-test/ and run TestRunner
 ├── .gitignore
 ├── .github/workflows/build.yml   # optional CI: compile + run tests on every push
 ├── scripts/
@@ -1065,15 +1065,6 @@ restaurant-rush/
 
 Use `-sourcepath` and compile from `Main`. javac pulls in every reachable class, so there's no file-list step, and paths with spaces aren't a problem (our folder is `sid stuff/.../Lab Proj`).
 
-`build.sh`
-```bash
-#!/usr/bin/env sh
-set -e
-rm -rf out && mkdir -p out
-javac --release 17 -encoding UTF-8 -d out -sourcepath src/main/java src/main/java/rush/Main.java
-echo "Built into out/"
-```
-
 `build.bat`
 ```bat
 @echo off
@@ -1083,21 +1074,18 @@ javac --release 17 -encoding UTF-8 -d out -sourcepath src/main/java src/main/jav
 echo Built into out\
 ```
 
-`run.sh` / `run.bat`
-```bash
-java -cp out rush.Main "$@"
-```
+`run.bat`
 ```bat
 @echo off
 java -cp out rush.Main %*
 ```
 
-`test.sh` (bat equivalent uses `;` as the path separator)
-```bash
-#!/usr/bin/env sh
-set -e
-rm -rf out-test && mkdir -p out-test
-javac --release 17 -encoding UTF-8 -d out-test -sourcepath "src/main/java:src/test/java" src/test/java/rush/TestRunner.java
+`test.bat`
+```bat
+@echo off
+if exist out-test rmdir /s /q out-test
+mkdir out-test
+javac --release 17 -encoding UTF-8 -d out-test -sourcepath "src/main/java;src/test/java" src/test/java/rush/TestRunner.java || exit /b 1
 java -ea -cp out-test rush.TestRunner
 ```
 
@@ -1114,7 +1102,7 @@ out-test/
 
 ### 8.4 Optional CI (cheap process evidence)
 
-`.github/workflows/build.yml`: on push/PR, `actions/setup-java` (temurin 17), run `sh build.sh && sh test.sh`. A green tick on every Stage 1 commit is good evidence for the process marks.
+`.github/workflows/build.yml`: on push/PR, `actions/setup-java` (temurin 17), run `build.bat` and `test.bat` on a Windows runner. A green tick on every Stage 1 commit is good evidence for the process marks.
 
 ---
 
@@ -1159,8 +1147,8 @@ Only after every item in Section 12 is ticked:
 ```bash
 git checkout main
 git pull
-sh build.sh
-sh test.sh
+build.bat
+test.bat
 git tag -a stage-1 -m "Stage 1: base game (Regular customers, Waiter/Chef/Cashier, full turn loop, victory/defeat)"
 git push origin stage-1
 ```
@@ -1169,8 +1157,8 @@ Then confirm a fresh clone runs at the tag:
 git clone <repo-url> verify
 cd verify
 git checkout stage-1
-sh build.sh
-sh run.sh scripts/stage1-victory.txt
+build.bat
+run.bat scripts\stage1-victory.txt
 ```
 
 **Don't move the tag after Stage 2 starts.** If a Stage 1 bug turns up later, fix it on `main` during Stage 2/3, and note the fix and the reason in that stage's README transition section. Moving a published tag undermines the process evidence.
@@ -1223,7 +1211,7 @@ sh run.sh scripts/stage1-victory.txt
 | D+1 | **M1 Interface freeze** | T1 merged. **Notify the Stage 2/3 devs to branch.** |
 | D+2–D+4 | M2 Domain complete | T2–T9 merged with green tests (Dev A); T10–T14 merged (Dev B) |
 | D+5 | **M3 Playable** | T15–T16: a human can play 18 turns start to finish |
-| D+6 | M4 Reproducible | T17–T19: scripts pass in `test.sh`; test notes written |
+| D+6 | M4 Reproducible | T17–T19: scripts pass in `test.bat`; test notes written |
 | D+7 | **M5 `stage-1` tag** | T20–T21; tag pushed; Stage 2 dev starts merging onto it |
 
 Daily: a 5-minute sync in the group chat ("merged / doing / blocked").
@@ -1399,7 +1387,7 @@ Final: 3 paid, $42.00, avg 81.3 -> DEFEAT (paid < 4, revenue < $45)
 - [ ] The class diagram in 5.3 matches the code (update the diagram if the code legitimately changed).
 
 **Reproducibility and process**
-- [ ] `build` + `test` pass on a fresh clone (Windows and macOS/Linux, if anyone has them).
+- [ ] `build` + `test` pass on a fresh clone (Windows).
 - [ ] Three scripts produce the expected numbers in 11.3.
 - [ ] `docs/test-notes/stage-1.md` completed.
 - [ ] README: build/run instructions, controls, the food-choice rule F1, how to replay scripts.

@@ -24,12 +24,12 @@ This README describes the current (Stage 3) game.
 
 ## Build, run, test
 
-| Task | Windows | macOS / Linux |
-|------|---------|---------------|
-| Build | `build.bat` | `sh build.sh` |
-| Play | `run.bat` | `sh run.sh` |
-| Replay a script | `run.bat scripts\stage3-victory.txt` | `sh run.sh scripts/stage3-victory.txt` |
-| Run all tests | `test.bat` | `sh test.sh` |
+| Task | Command (Windows) |
+|------|-------------------|
+| Build | `build.bat` |
+| Play | `run.bat` |
+| Replay a script | `run.bat scripts\stage3-victory.txt` |
+| Run all tests | `test.bat` |
 
 Build first; `run` and `test` use the compiled `out/` and `out-test/` folders.
 

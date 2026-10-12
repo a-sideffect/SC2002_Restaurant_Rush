@@ -12,7 +12,6 @@ run.bat scripts\stage1-defeat-idle.txt
 test.bat
 ```
 
-(macOS/Linux: `sh build.sh`, `sh run.sh scripts/stage1-victory.txt`, `sh test.sh`.)
 
 Each script holds two commands per turn (Waiter, then Chef); `#` lines are comments. The game echoes every
 scripted command after its prompt, so the output reads like a live session. If a script is shorter than the

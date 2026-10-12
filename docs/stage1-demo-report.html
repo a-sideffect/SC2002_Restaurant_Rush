@@ -193,9 +193,9 @@ Chef&gt;   OK: Chef waits.
 --------------------------------------------------------------</pre>
 
 <h2 id="setup">1. Setup (chunk 1)</h2>
-<p><b>What was built.</b> A plain-JDK project with no dependencies, as the offline rule requires. <code>build</code>, <code>run</code> and <code>test</code> scripts exist for Windows (<code>.bat</code>) and Unix (<code>.sh</code>). They compile from <code>Main</code> with <code>-sourcepath</code>, which handles the spaces in your folder path. The compiler flag <code>--release 17</code> lets teammates on JDK 17 build the code even though it was written on JDK 21. A <code>.gitignore</code> keeps compiled output and IDE files out of the repository.</p>
+<p><b>What was built.</b> A plain-JDK project with no dependencies, as the offline rule requires. <code>build</code>, <code>run</code> and <code>test</code> scripts exist for Windows (<code>.bat</code>). They compile from <code>Main</code> with <code>-sourcepath</code>, which handles the spaces in your folder path. The compiler flag <code>--release 17</code> lets teammates on JDK 17 build the code even though it was written on JDK 21. A <code>.gitignore</code> keeps compiled output and IDE files out of the repository.</p>
 <p><b>Test harness.</b> <code>TestRunner</code> has two check methods and a summary, and exits non-zero on failure. It was chosen over JUnit so that a marker needs only a JDK.</p>
-<p><b>Status.</b> <span class="ok">Done.</span> The <code>.sh</code> scripts have not been run on a Mac or Linux machine.</p>
+<p><b>Status.</b> <span class="ok">Done.</span></p>
 
 <h2 id="domain">2. Domain layer (chunks 2 and 3)</h2>
 <p><b>What was built.</b> 29 files holding all game rules and state. The package never prints, reads input or imports from the other layers, which is what the brief means by keeping rules out of the UI.</p>
@@ -253,7 +253,6 @@ Chef&gt;   OK: Chef waits.
 <tr><th>Item</th><th>Needs</th></tr>
 <tr><td>Fill roles and deadline in the design log and README</td><td>You and your teammate</td></tr>
 <tr><td>Check the display against the original assignment brief</td><td>The brief text</td></tr>
-<tr><td>Run <code>build.sh</code> and <code>test.sh</code> on a Mac, Linux or Git Bash</td><td>Any such machine</td></tr>
 <tr><td>Commits with a "Why:" line, the annotated <code>stage-1</code> tag, push, and a fresh-clone check</td><td>Your go-ahead. Repo: github.com/a-sideffect/SC2002_Restaurant_Rush</td></tr>
 <tr><td>Optional: CI workflow for process evidence</td><td>A yes or no</td></tr>
 </table>
